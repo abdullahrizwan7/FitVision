@@ -9,23 +9,12 @@ import {
   StopCircle,
   Settings,
   Maximize2,
-  Minimize2,
-  Target,
-  Menu,
-  X,
-  Zap,
-  Eye,
-  Clock,
-  Flame
+  Minimize2
 } from 'lucide-react';
 import { WorkoutType, FormFeedback } from '../types/pose';
 import { createWorkoutDetector, createFallbackDetector } from '../utils/workoutDetectors';
 import RepCounter from './RepCounter';
 import PostureAlert from './PostureAlert';
-import GlassCard from './ui/GlassCard';
-import NeonButton from './ui/NeonButton';
-import HolographicText from './ui/HolographicText';
-import FloatingPanel from './ui/FloatingPanel';
 
 interface WorkoutCameraProps {
   selectedWorkout: WorkoutType;
@@ -56,8 +45,6 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
-  const [showMobileStats, setShowMobileStats] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   
   // Timer for elapsed time
   useEffect(() => {
@@ -243,489 +230,259 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
   
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 flex items-center justify-center p-4">
-        <GlassCard className="p-8 max-w-lg w-full text-center" glow>
-          <motion.div
-            className="text-red-400 mb-6"
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <CameraOff className="h-16 w-16 mx-auto" />
-          </motion.div>
-          
-          <HolographicText size="2xl" className="mb-4">
-            AI Detection Error
-          </HolographicText>
-          
-          <p className="text-white/70 mb-8 leading-relaxed">{error}</p>
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl p-8 shadow-xl max-w-lg w-full text-center">
+          <div className="text-red-500 mb-4">
+            <CameraOff className="h-12 w-12 mx-auto" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">AI Detection Error</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
           
           {/* Debug info for development */}
-          <GlassCard className="mb-6 p-4" variant="dark">
-            <details className="text-left">
-              <summary className="text-sm text-white/70 cursor-pointer hover:text-white transition-colors">
-                🔧 Technical Details
-              </summary>
-              <div className="mt-3 p-3 bg-black/30 rounded-lg text-xs text-white/60 font-mono space-y-1">
-                <p>🏋️ Workout: {selectedWorkout.id}</p>
-                <p>🌐 Browser: {navigator.userAgent.split(' ')[0]}</p>
-                <p>⚡ WebGL: {(() => {
-                  try {
-                    const canvas = document.createElement('canvas');
-                    return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-                  } catch (e) {
-                    return false;
-                  }
-                })() ? '✅ Supported' : '❌ Not Supported'}</p>
-                <p>📷 Camera: {streamRef.current ? '✅ Access Granted' : '❌ Access Denied'}</p>
-              </div>
-            </details>
-          </GlassCard>
+          <details className="mb-6 text-left">
+            <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">
+              Show technical details
+            </summary>
+            <div className="mt-2 p-3 bg-gray-50 rounded text-xs text-gray-600 font-mono">
+              <p>Workout Type: {selectedWorkout.id}</p>
+              <p>Browser: {navigator.userAgent}</p>
+              <p>WebGL Support: {(() => {
+                try {
+                  const canvas = document.createElement('canvas');
+                  return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+                } catch (e) {
+                  return false;
+                }
+              })() ? 'Yes' : 'No'}</p>
+              <p>Camera Access: {streamRef.current ? 'Granted' : 'Denied/Failed'}</p>
+            </div>
+          </details>
           
-          <div className="space-y-4">
-            <NeonButton
+          <div className="space-y-3">
+            <button
               onClick={initializeCamera}
-              variant="primary"
-              size="lg"
-              className="w-full"
-              icon={<RotateCcw className="h-5 w-5" />}
+              className="w-full py-3 px-4 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
             >
               Try Again
-            </NeonButton>
+            </button>
             
-            <NeonButton
+            <button
               onClick={() => {
                 setUseFallback(true);
                 setError(null);
                 initializeCamera();
               }}
-              variant="secondary"
-              size="lg"
-              className="w-full"
-              icon={<Target className="h-5 w-5" />}
+              className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
-              Manual Mode
-            </NeonButton>
+              Continue with Manual Counting
+            </button>
             
-            <NeonButton
+            <button
               onClick={onExit}
-              variant="danger"
-              size="lg"
-              className="w-full"
-              icon={<X className="h-5 w-5" />}
+              className="w-full py-3 px-4 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
             >
-              Exit Workout
-            </NeonButton>
+              Go Back
+            </button>
           </div>
           
           {/* Troubleshooting tips */}
-          <GlassCard className="mt-6 p-4" variant="colored">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center">
-              <Zap className="h-4 w-4 mr-2" />
-              Troubleshooting Tips
-            </h3>
-            <ul className="text-xs text-white/70 space-y-2 text-left">
-              <li className="flex items-start">
-                <span className="text-green-400 mr-2">•</span>
-                Ensure WebGL is supported in your browser
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-400 mr-2">•</span>
-                Enable hardware acceleration in settings
-              </li>
-              <li className="flex items-start">
-                <span className="text-purple-400 mr-2">•</span>
-                Use Chrome, Firefox, or Safari for best results
-              </li>
-              <li className="flex items-start">
-                <span className="text-yellow-400 mr-2">•</span>
-                Check your internet connection
-              </li>
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg text-left">
+            <h3 className="text-sm font-medium text-blue-900 mb-2">Troubleshooting Tips:</h3>
+            <ul className="text-xs text-blue-700 space-y-1">
+              <li>• Make sure your browser supports WebGL</li>
+              <li>• Enable hardware acceleration in browser settings</li>
+              <li>• Try refreshing the page</li>
+              <li>• Check your internet connection</li>
+              <li>• Use Chrome, Firefox, or Safari for best results</li>
             </ul>
-          </GlassCard>
-        </GlassCard>
+          </div>
+        </div>
       </div>
     );
   }
   
   return (
-    <div className={`${isFullscreen ? 'fixed inset-0 z-50' : 'min-h-screen'} bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900`}>
-      {/* Futuristic Header */}
-      <motion.div 
-        className="relative z-10"
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
-        <GlassCard className="m-4 p-4" variant="dark">
-          <div className="flex items-center justify-between">
-            {/* Workout Info */}
-            <div className="flex items-center space-x-4">
-              <motion.div 
-                className={`p-3 rounded-xl ${selectedWorkout.color} text-white shadow-lg`}
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              >
-                {selectedWorkout.icon}
-              </motion.div>
-              <div>
-                <HolographicText size="xl" className="mb-1">
-                  {selectedWorkout.name}
-                </HolographicText>
-                <p className="text-white/70 text-sm flex items-center">
-                  <Target className="h-3 w-3 mr-1" />
-                  Goal: {targetValue} {selectedWorkout.unit}
-                </p>
-              </div>
+    <div className={`${isFullscreen ? 'fixed inset-0 z-50' : 'min-h-screen'} bg-gray-900 flex flex-col`}>
+      {/* Header */}
+      <div className="bg-white/10 backdrop-blur-sm border-b border-white/20 p-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className={`p-2 rounded-lg ${selectedWorkout.color} text-white`}>
+              {selectedWorkout.icon}
             </div>
-            
-            {/* Header Controls */}
-            <div className="flex items-center space-x-2">
-              {/* Mobile Stats Toggle */}
-              <button
-                onClick={() => setShowMobileStats(!showMobileStats)}
-                className="lg:hidden p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              
-              <button
-                onClick={() => setShowSettings(!showSettings)}
-                className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
-              >
-                <Settings className="h-5 w-5" />
-              </button>
-              
-              <button
-                onClick={toggleFullscreen}
-                className="hidden md:block p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
-              >
-                {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
-              </button>
-              
-              <NeonButton
-                onClick={onExit}
-                variant="danger"
-                size="sm"
-                icon={<X className="h-4 w-4" />}
-              >
-                Exit
-              </NeonButton>
+            <div>
+              <h1 className="text-xl font-bold text-white">{selectedWorkout.name}</h1>
+              <p className="text-white/70 text-sm">
+                Target: {targetValue} {selectedWorkout.unit}
+              </p>
             </div>
           </div>
-        </GlassCard>
-      </motion.div>
-      
-      {/* Main Content - Mobile First Layout */}
-      <div className="flex flex-col lg:flex-row flex-1 p-4 pt-0 gap-4">
-        {/* Video Area */}
-        <motion.div 
-          className="flex-1 relative"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.8 }}
-        >
-          <GlassCard className="relative overflow-hidden h-[60vh] lg:h-[calc(100vh-200px)]" glow>
-            {/* Loading Overlay */}
-            <AnimatePresence>
-              {isLoading && (
-                <motion.div 
-                  className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-20"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <div className="text-center">
-                    <motion.div
-                      className="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-400 mx-auto mb-6"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    />
-                    <HolographicText size="lg" className="mb-2">
-                      AI Initializing...
-                    </HolographicText>
-                    <p className="text-white/70 text-sm">Preparing your futuristic workout experience</p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            
-            <video
-              ref={videoRef}
-              autoPlay
-              muted
-              playsInline
-              className="w-full h-full object-cover rounded-2xl"
-            />
-            
-            {/* AI Overlay Elements */}
-            <div className="absolute inset-0 pointer-events-none">
-              {/* Corner Indicators */}
-              <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-purple-400"></div>
-              <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-purple-400"></div>
-              <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-purple-400"></div>
-              <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-purple-400"></div>
-              
-              {/* AI Status Indicator */}
-              <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
-                <GlassCard className="px-3 py-1" variant="dark">
-                  <div className="flex items-center space-x-2 text-xs">
-                    <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`}></div>
-                    <span className="text-white/70">
-                      {isActive ? 'AI TRACKING' : 'AI READY'}
-                    </span>
-                  </div>
-                </GlassCard>
-              </div>
-            </div>
-            
-            {/* Posture Alert */}
-            <PostureAlert
-              feedback={feedback}
-              type={feedbackType}
-              isVisible={showFeedback && !isLoading}
-            />
-            
-            {/* Manual Mode Banner */}
-            {useFallback && isActive && (
-              <motion.div 
-                className="absolute top-16 left-1/2 transform -translate-x-1/2"
-                initial={{ y: -50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-              >
-                <GlassCard className="px-4 py-2" variant="colored" glow>
-                  <div className="flex items-center space-x-2 text-sm text-white">
-                    <Target className="h-4 w-4" />
-                    <span>Manual Mode Active - Tap target to count</span>
-                  </div>
-                </GlassCard>
-              </motion.div>
-            )}
-          </GlassCard>
           
-          {/* Mobile Controls */}
-          <motion.div 
-            className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <GlassCard className="p-3" variant="dark" glow>
-              <div className="flex items-center space-x-3">
-                {/* Play/Pause */}
-                {!isActive ? (
-                  <NeonButton
-                    onClick={startWorkout}
-                    disabled={isLoading}
-                    variant="success"
-                    size="sm"
-                    icon={<Play className="h-5 w-5" />}
-                    className="px-4"
-                  >
-                    Start
-                  </NeonButton>
-                ) : (
-                  <NeonButton
-                    onClick={pauseWorkout}
-                    variant="warning"
-                    size="sm"
-                    icon={<Pause className="h-5 w-5" />}
-                    className="px-4"
-                  >
-                    Pause
-                  </NeonButton>
-                )}
-                
-                {/* Manual Rep Button */}
-                {useFallback && isActive && (
-                  <NeonButton
-                    onClick={() => {
-                      if (detectorRef.current && 'addRep' in detectorRef.current) {
-                        (detectorRef.current as any).addRep();
-                      }
-                    }}
-                    variant="primary"
-                    size="sm"
-                    icon={<Target className="h-5 w-5" />}
-                  >
-                    +1
-                  </NeonButton>
-                )}
-                
-                {/* Reset */}
-                <button
-                  onClick={resetWorkout}
-                  className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
-                >
-                  <RotateCcw className="h-5 w-5" />
-                </button>
-                
-                {/* Complete */}
-                <button
-                  onClick={completeWorkout}
-                  className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
-                >
-                  <StopCircle className="h-5 w-5" />
-                </button>
-              </div>
-            </GlassCard>
-          </motion.div>
-        </motion.div>
-        
-        {/* Desktop Stats Sidebar */}
-        <motion.div 
-          className="hidden lg:block w-80"
-          initial={{ x: 100, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <GlassCard className="p-6 h-[calc(100vh-200px)] overflow-y-auto" variant="dark">
-            <RepCounter
-              currentReps={selectedWorkout.type === 'reps' ? currentReps : elapsedTime}
-              targetReps={targetValue}
-              workoutType={selectedWorkout.type}
-              currentPosition={currentPosition}
-              elapsedTime={elapsedTime}
-              caloriesEstimate={Math.round(selectedWorkout.calories * (currentReps / selectedWorkout.defaultValue))}
-              accuracy={95}
-            />
-            
-            {/* Form Tips */}
-            <div className="mt-6">
-              <HolographicText size="lg" className="mb-4">
-                Form Guide
-              </HolographicText>
-              <GlassCard className="p-4" variant="colored">
-                <div className="text-white/80 text-sm space-y-3">
-                  {selectedWorkout.id === 'pushups' && (
-                    <>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-green-400">•</span>
-                        <span>Keep your body straight like a plank</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-blue-400">•</span>
-                        <span>Lower until elbows are at 90 degrees</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-purple-400">•</span>
-                        <span>Keep your core engaged throughout</span>
-                      </div>
-                    </>
-                  )}
-                  {selectedWorkout.id === 'squats' && (
-                    <>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-green-400">•</span>
-                        <span>Keep your chest up and core tight</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-blue-400">•</span>
-                        <span>Lower until thighs are parallel</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-purple-400">•</span>
-                        <span>Knees should track over your toes</span>
-                      </div>
-                    </>
-                  )}
-                  {selectedWorkout.id === 'plank' && (
-                    <>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-green-400">•</span>
-                        <span>Keep your body straight</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-blue-400">•</span>
-                        <span>Shoulders directly over elbows</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-purple-400">•</span>
-                        <span>Engage your core muscles</span>
-                      </div>
-                    </>
-                  )}
-                  {selectedWorkout.id === 'jumpingjacks' && (
-                    <>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-green-400">•</span>
-                        <span>Jump feet apart, arms overhead</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-blue-400">•</span>
-                        <span>Land softly on balls of feet</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-purple-400">•</span>
-                        <span>Maintain a steady rhythm</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </GlassCard>
-            </div>
-          </GlassCard>
-        </motion.div>
-      </div>
-      
-      {/* Mobile Stats Panel */}
-      <FloatingPanel
-        isVisible={showMobileStats}
-        position="bottom"
-        onClose={() => setShowMobileStats(false)}
-        title="Workout Stats"
-        className="lg:hidden w-full max-w-lg"
-      >
-        <RepCounter
-          currentReps={selectedWorkout.type === 'reps' ? currentReps : elapsedTime}
-          targetReps={targetValue}
-          workoutType={selectedWorkout.type}
-          currentPosition={currentPosition}
-          elapsedTime={elapsedTime}
-          caloriesEstimate={Math.round(selectedWorkout.calories * (currentReps / selectedWorkout.defaultValue))}
-          accuracy={95}
-        />
-      </FloatingPanel>
-      
-      {/* Settings Panel */}
-      <FloatingPanel
-        isVisible={showSettings}
-        position="center"
-        onClose={() => setShowSettings(false)}
-        title="Workout Settings"
-        className="max-w-md"
-      >
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-white/80">Fullscreen Mode</span>
+          <div className="flex items-center space-x-2">
             <button
               onClick={toggleFullscreen}
-              className={`px-3 py-1 rounded-lg text-sm transition-all ${
-                isFullscreen ? 'bg-purple-500 text-white' : 'bg-white/20 text-white/70'
-              }`}
+              className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
             >
-              {isFullscreen ? 'ON' : 'OFF'}
+              {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
             </button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-white/80">Manual Mode</span>
+            
             <button
-              onClick={() => {
-                setUseFallback(!useFallback);
-                if (!useFallback) {
-                  setError(null);
-                  initializeCamera();
-                }
-              }}
-              className={`px-3 py-1 rounded-lg text-sm transition-all ${
-                useFallback ? 'bg-blue-500 text-white' : 'bg-white/20 text-white/70'
-              }`}
+              onClick={onExit}
+              className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
             >
-              {useFallback ? 'ON' : 'OFF'}
+              <StopCircle className="h-5 w-5" />
             </button>
           </div>
         </div>
-      </FloatingPanel>
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex-1 flex">
+        {/* Video Area */}
+        <div className="flex-1 relative">
+          {isLoading && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
+              <div className="text-white text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                <p className="text-lg font-medium">Initializing AI Detection...</p>
+                <p className="text-sm text-white/70 mt-2">This may take a few moments</p>
+              </div>
+            </div>
+          )}
+          
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
+          
+          {/* Posture Alert Overlay */}
+          <PostureAlert
+            feedback={feedback}
+            type={feedbackType}
+            isVisible={showFeedback && !isLoading}
+          />
+          
+          {/* Controls Overlay */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+            <div className="flex items-center space-x-4 bg-black/50 backdrop-blur-sm rounded-full px-6 py-3">
+              {!isActive ? (
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={startWorkout}
+                  disabled={isLoading}
+                  className="p-3 rounded-full bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Play className="h-6 w-6" />
+                </motion.button>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={pauseWorkout}
+                  className="p-3 rounded-full bg-yellow-500 text-white hover:bg-yellow-600 transition-colors"
+                >
+                  <Pause className="h-6 w-6" />
+                </motion.button>
+              )}
+              
+              {/* Manual rep button for fallback mode */}
+              {useFallback && isActive && (
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => {
+                    if (detectorRef.current && 'addRep' in detectorRef.current) {
+                      (detectorRef.current as any).addRep();
+                    }
+                  }}
+                  className="p-3 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                >
+                  <Target className="h-6 w-6" />
+                </motion.button>
+              )}
+              
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={resetWorkout}
+                className="p-3 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"
+              >
+                <RotateCcw className="h-6 w-6" />
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={completeWorkout}
+                className="p-3 rounded-full bg-purple-500 text-white hover:bg-purple-600 transition-colors"
+              >
+                <StopCircle className="h-6 w-6" />
+              </motion.button>
+            </div>
+          </div>
+          
+          {/* Manual counting instructions for fallback mode */}
+          {useFallback && isActive && (
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+              <div className="bg-blue-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg text-sm">
+                Manual Mode: Tap the target button to count each rep
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Stats Sidebar */}
+        <div className="w-80 bg-gray-800 p-6 flex flex-col">
+          <RepCounter
+            currentReps={selectedWorkout.type === 'reps' ? currentReps : elapsedTime}
+            targetReps={targetValue}
+            workoutType={selectedWorkout.type}
+            currentPosition={currentPosition}
+            elapsedTime={elapsedTime}
+            caloriesEstimate={Math.round(selectedWorkout.calories * (currentReps / selectedWorkout.defaultValue))}
+            accuracy={95}
+          />
+          
+          {/* Workout Tips */}
+          <div className="mt-6 bg-white/10 rounded-lg p-4">
+            <h3 className="text-white font-semibold mb-3">Form Tips</h3>
+            <div className="text-white/70 text-sm space-y-2">
+              {selectedWorkout.id === 'pushups' && (
+                <>
+                  <p>• Keep your body straight like a plank</p>
+                  <p>• Lower until elbows are at 90 degrees</p>
+                  <p>• Keep your core engaged</p>
+                </>
+              )}
+              {selectedWorkout.id === 'squats' && (
+                <>
+                  <p>• Keep your chest up and core tight</p>
+                  <p>• Lower until thighs are parallel</p>
+                  <p>• Knees should track over your toes</p>
+                </>
+              )}
+              {selectedWorkout.id === 'plank' && (
+                <>
+                  <p>• Keep your body straight</p>
+                  <p>• Shoulders over elbows</p>
+                  <p>• Engage your core muscles</p>
+                </>
+              )}
+              {selectedWorkout.id === 'jumpingjacks' && (
+                <>
+                  <p>• Jump feet apart, arms overhead</p>
+                  <p>• Land softly on balls of feet</p>
+                  <p>• Keep a steady rhythm</p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

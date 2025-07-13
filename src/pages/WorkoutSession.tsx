@@ -70,10 +70,12 @@ const WorkoutSession = () => {
   switch (phase) {
     case 'selection':
       return (
-        <WorkoutSelector 
-          onWorkoutSelect={handleWorkoutSelect}
-          isLoading={isLoading}
-        />
+        <div className="pt-20 min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+          <WorkoutSelector 
+            onWorkoutSelect={handleWorkoutSelect}
+            isLoading={isLoading}
+          />
+        </div>
       );
 
     case 'workout':

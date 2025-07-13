@@ -1,8 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Target, Clock, Flame, TrendingUp, Zap, Eye, Award } from 'lucide-react';
-import GlassCard from './ui/GlassCard';
-import HolographicText from './ui/HolographicText';
+import { Target, Clock, Flame, TrendingUp } from 'lucide-react';
 
 interface RepCounterProps {
   currentReps: number;
@@ -36,192 +34,111 @@ const RepCounter: React.FC<RepCounterProps> = ({
   };
   
   return (
-    <div className="space-y-6">
-      {/* Main Counter Display */}
-      <GlassCard className="p-6 text-center" glow variant="dark">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200">
+      {/* Main Counter */}
+      <div className="text-center mb-6">
         <motion.div
           key={currentReps}
           initial={{ scale: 1 }}
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 0.4 }}
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 0.3 }}
+          className="text-6xl font-bold text-gray-900 mb-2"
         >
-          <HolographicText 
-            size="4xl" 
-            className="mb-2"
-            gradient="from-cyan-400 via-purple-400 to-pink-400"
-          >
-            {workoutType === 'reps' ? currentReps : formatTime(elapsedTime)}
-          </HolographicText>
+          {workoutType === 'reps' ? currentReps : formatTime(elapsedTime)}
         </motion.div>
         
-        <p className="text-white/70 text-lg mb-4">
+        <div className="text-lg text-gray-600">
           {workoutType === 'reps' 
-            ? `of ${targetReps} reps` 
-            : `of ${formatTime(targetReps)}`
+            ? `/ ${targetReps} reps` 
+            : `/ ${formatTime(targetReps)} target`
           }
-        </p>
-        
-        {/* Futuristic Progress Ring */}
-        <div className="relative w-32 h-32 mx-auto mb-4">
-          <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 100 100">
-            {/* Background ring */}
-            <circle
-              cx="50"
-              cy="50"
-              r="40"
-              stroke="rgba(255,255,255,0.1)"
-              strokeWidth="8"
-              fill="none"
-            />
-            {/* Progress ring */}
-            <motion.circle
-              cx="50"
-              cy="50"
-              r="40"
-              stroke="url(#progressGradient)"
-              strokeWidth="8"
-              fill="none"
-              strokeLinecap="round"
-              strokeDasharray={`${2 * Math.PI * 40}`}
-              initial={{ strokeDashoffset: 2 * Math.PI * 40 }}
-              animate={{ 
-                strokeDashoffset: 2 * Math.PI * 40 * (1 - Math.min(progress, 100) / 100) 
-              }}
-              transition={{ duration: 1, ease: "easeOut" }}
-            />
-            <defs>
-              <linearGradient id="progressGradient">
-                <stop offset="0%" stopColor="#8B5CF6" />
-                <stop offset="50%" stopColor="#06B6D4" />
-                <stop offset="100%" stopColor="#10B981" />
-              </linearGradient>
-            </defs>
-          </svg>
-          
-          {/* Percentage in center */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <HolographicText size="lg">
-              {Math.round(progress)}%
-            </HolographicText>
-          </div>
         </div>
-      </GlassCard>
-      
-      {/* Position Status */}
-      <motion.div
-        key={currentPosition}
-        initial={{ scale: 0.8, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="flex justify-center"
-      >
-        <GlassCard 
-          className={`px-6 py-3 ${
-            currentPosition === 'DOWN' || currentPosition === 'HOLD' || currentPosition === 'OUT'
-              ? 'border-red-400 shadow-red-500/25' 
-              : currentPosition === 'UP' || currentPosition === 'IN'
-                ? 'border-green-400 shadow-green-500/25'
-                : 'border-yellow-400 shadow-yellow-500/25'
-          }`}
-          glow
-        >
-          <div className="flex items-center space-x-2">
-            <Eye className={`h-5 w-5 ${
-              currentPosition === 'DOWN' || currentPosition === 'HOLD' || currentPosition === 'OUT'
-                ? 'text-red-400' 
-                : currentPosition === 'UP' || currentPosition === 'IN'
-                  ? 'text-green-400'
-                  : 'text-yellow-400'
-            }`} />
-            <HolographicText size="lg" className="font-bold">
-              {currentPosition}
-            </HolographicText>
-          </div>
-        </GlassCard>
-      </motion.div>
-      
-      {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-3">
-        {/* Time */}
-        <GlassCard className="p-4 text-center" variant="colored">
-          <motion.div
-            className="flex justify-center mb-2"
-            animate={{ rotate: [0, 360] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-          >
-            <Clock className="h-6 w-6 text-blue-400" />
-          </motion.div>
-          <HolographicText size="lg" className="mb-1">
-            {formatTime(elapsedTime)}
-          </HolographicText>
-          <p className="text-white/60 text-xs">Duration</p>
-        </GlassCard>
         
-        {/* Calories */}
-        <GlassCard className="p-4 text-center" variant="colored">
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-200 rounded-full h-3 mt-4 overflow-hidden">
           <motion.div
-            className="flex justify-center mb-2"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <Flame className="h-6 w-6 text-orange-400" />
-          </motion.div>
-          <HolographicText size="lg" className="mb-1">
-            {Math.round(caloriesEstimate)}
-          </HolographicText>
-          <p className="text-white/60 text-xs">Calories</p>
-        </GlassCard>
+            className={`h-full rounded-full ${
+              isComplete 
+                ? 'bg-green-500' 
+                : progress > 75 
+                  ? 'bg-blue-500' 
+                  : 'bg-purple-500'
+            }`}
+            initial={{ width: 0 }}
+            animate={{ width: `${Math.min(progress, 100)}%` }}
+            transition={{ duration: 0.5 }}
+          />
+        </div>
         
-        {/* Form Accuracy */}
-        <GlassCard className="p-4 text-center" variant="colored">
-          <motion.div
-            className="flex justify-center mb-2"
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <TrendingUp className="h-6 w-6 text-green-400" />
-          </motion.div>
-          <HolographicText size="lg" className="mb-1">
-            {Math.round(accuracy)}%
-          </HolographicText>
-          <p className="text-white/60 text-xs">Form Score</p>
-        </GlassCard>
+        <div className="text-sm text-gray-500 mt-2">
+          {Math.round(progress)}% Complete
+        </div>
       </div>
       
-      {/* Completion Celebration */}
+      {/* Position Indicator */}
+      <div className="flex justify-center mb-6">
+        <motion.div
+          key={currentPosition}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className={`px-6 py-3 rounded-full font-bold text-lg ${
+            currentPosition === 'DOWN' || currentPosition === 'HOLD' || currentPosition === 'OUT'
+              ? 'bg-red-100 text-red-700 border-2 border-red-300'
+              : currentPosition === 'UP' || currentPosition === 'IN'
+                ? 'bg-green-100 text-green-700 border-2 border-green-300'
+                : 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300'
+          }`}
+        >
+          {currentPosition}
+        </motion.div>
+      </div>
+      
+      {/* Stats Grid */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="text-center">
+          <div className="flex justify-center mb-2">
+            <Clock className="h-5 w-5 text-blue-500" />
+          </div>
+          <div className="text-lg font-semibold text-gray-900">
+            {formatTime(elapsedTime)}
+          </div>
+          <div className="text-xs text-gray-500">Time</div>
+        </div>
+        
+        <div className="text-center">
+          <div className="flex justify-center mb-2">
+            <Flame className="h-5 w-5 text-orange-500" />
+          </div>
+          <div className="text-lg font-semibold text-gray-900">
+            {Math.round(caloriesEstimate)}
+          </div>
+          <div className="text-xs text-gray-500">Calories</div>
+        </div>
+        
+        <div className="text-center">
+          <div className="flex justify-center mb-2">
+            <TrendingUp className="h-5 w-5 text-green-500" />
+          </div>
+          <div className="text-lg font-semibold text-gray-900">
+            {Math.round(accuracy)}%
+          </div>
+          <div className="text-xs text-gray-500">Form</div>
+        </div>
+      </div>
+      
+      {/* Completion Animation */}
       {isComplete && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.8, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-6 text-center p-4 bg-green-100 rounded-lg border-2 border-green-300"
         >
-          <GlassCard className="p-6 text-center" glow variant="colored">
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="inline-block mb-4"
-            >
-              <Award className="h-12 w-12 text-yellow-400" />
-            </motion.div>
-            
-            <HolographicText size="2xl" className="mb-2">
-              🎉 Mission Complete! 🎉
-            </HolographicText>
-            
-            <p className="text-white/80 text-lg">
-              Outstanding performance! You've achieved your target with precision.
-            </p>
-            
-            <motion.div
-              className="mt-4 flex justify-center space-x-2"
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 1, repeat: Infinity }}
-            >
-              <Zap className="h-5 w-5 text-yellow-400" />
-              <span className="text-yellow-400 font-semibold">+{Math.round(caloriesEstimate)} XP Earned</span>
-              <Zap className="h-5 w-5 text-yellow-400" />
-            </motion.div>
-          </GlassCard>
+          <div className="text-green-700 font-bold text-lg">
+            🎉 Workout Complete!
+          </div>
+          <div className="text-green-600 text-sm mt-1">
+            Great job! You've reached your target.
+          </div>
         </motion.div>
       )}
     </div>
