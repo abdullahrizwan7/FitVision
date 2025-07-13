@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Workout Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6b46c1;
+      --primary-dark: #553c9a;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #1f2937;
+      --light: #f9fafb;
+      --gray: #6b7280;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      margin-bottom: 1rem;
+    }
+    
+    .app-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .back-button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .back-button:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .main-content {
+      display: flex;
+      flex: 1;
+      gap: 1.5rem;
+      height: calc(100vh - 8rem);
+    }
+    
+    .video-container {
+      flex: 2;
+      position: relative;
+      background-color: black;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    #videoElement {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+    }
+    
+    #canvas {
+      transform: scaleX(-1);
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .loading-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 1rem;
+      border-radius: 0.375rem;
+      text-align: center;
+    }
+    
+    .stats-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 350px;
+    }
+    
+    .stats-card {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+    
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .card-title svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+    
+    .position-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .position-label {
+      font-weight: 500;
+      color: var(--gray);
+    }
+    
+    .position-value {
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      color: white;
+    }
+    
+    .position-up {
+      background-color: var(--success);
+    }
+    
+    .position-down {
+      background-color: var(--warning);
+    }
+    
+    .rep-counter {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 1.5rem 0;
+    }
+    
+    .rep-count {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .rep-label {
+      font-size: 0.875rem;
+      color: var(--gray);
+      margin-top: 0.25rem;
+    }
+    
+    .progress-container {
+      margin-top: 1rem;
+    }
+    
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    
+    .progress-bar-bg {
+      width: 100%;
+      height: 0.5rem;
+      background-color: #e5e7eb;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background-color: var(--primary);
+      border-radius: 9999px;
+      transition: width 0.3s ease;
+    }
+    
+    .feedback-message {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      margin-top: 1rem;
+    }
+    
+    .feedback-good {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+    
+    .feedback-warning {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+    
+    .workout-complete {
+      background-color: rgba(107, 70, 193, 0.1);
+      border: 1px solid var(--primary);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      text-align: center;
+      margin-top: 1rem;
+    }
+    
+    .complete-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .complete-message {
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+    
+    .restart-button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .restart-button:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    @media (max-width: 768px) {
+      .main-content {
+        flex-direction: column;
+      }
+      
+      .stats-container {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header class="header">
+      <h1 class="app-title">AI Workout Assistant</h1>
+      <button class="back-button" onclick="window.close()">Back to App</button>
+    </header>
+    
+    <div class="main-content">
+      <div class="video-container">
+        <video id="videoElement" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+        <p class="loading-message">Loading AI model, please wait...</p>
+      </div>
+      
+      <div class="stats-container">
+        <div class="stats-card">
+          <h2 class="card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+            </svg>
+            Current Status
+          </h2>
+          <div class="position-indicator">
+            <span class="position-label">Position</span>
+            <span id="position-value" class="position-value position-up">UP</span>
+          </div>
+          
+          <div class="rep-counter">
+            <div id="rep-count" class="rep-count">0</div>
+            <div class="rep-label">Pushups Completed</div>
+          </div>
+          
+          <div class="progress-container">
+            <div class="progress-label">
+              <span>Progress</span>
+              <span id="progress-text">0/10</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="stats-card">
+          <h2 class="card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+            Form Feedback
+          </h2>
+          <div id="feedback-message" class="feedback-message feedback-good">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>Get ready to start!</span>
+          </div>
+        </div>
+        
+        <div id="workout-complete" class="workout-complete" style="display: none;">
+          <h3 class="complete-title">Workout Complete! 🎉</h3>
+          <p class="complete-message">Great job! You've completed your pushup goal.</p>
+          <button id="restart-button" class="restart-button">Start New Set</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- Check that your HTML has this element -->
+<video id="videoElement" autoplay playsinline style="display: none;"></video>
+
+  <!-- Load TensorFlow.js and pose-detection -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@0.0.6/dist/pose-detection.min.js"></script>
+  
+  <!-- Load our scripts -->
+  <script src="utils.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>
