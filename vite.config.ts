@@ -11,11 +11,11 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: [
-        '@tensorflow/tfjs-backend-webgpu',
-        '@tensorflow/tfjs-backend-cpu',
-        '@tensorflow/tfjs-backend-webgl'
-      ]
+      output: {
+        manualChunks: {
+          tensorflow: ['@tensorflow/tfjs', '@tensorflow-models/pose-detection']
+        }
+      }
     }
   },
   define: {
