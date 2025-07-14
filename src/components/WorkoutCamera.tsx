@@ -16,6 +16,8 @@ import { WorkoutType, FormFeedback } from '../types/pose';
 import { createWorkoutDetector, createFallbackDetector } from '../utils/workoutDetectors';
 import RepCounter from './RepCounter';
 import PostureAlert from './PostureAlert';
+import { audioFeedback } from '../utils/audioFeedback';
+import { workoutMotivation } from '../utils/workoutMotivation';
 
 interface WorkoutCameraProps {
   selectedWorkout: WorkoutType;
@@ -46,6 +48,12 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
+  const [personInFrame, setPersonInFrame] = useState(true);
+  const [formIssues, setFormIssues] = useState<string[]>([]);
+  const [lastRepTime, setLastRepTime] = useState(0);
+  const [alertBorder, setAlertBorder] = useState(false);
+  const [pausedTime, setPausedTime] = useState(0);
+  const [lastPauseStart, setLastPauseStart] = useState<number | null>(null);
   
   // Format time helper function
   const formatTime = (seconds: number): string => {
@@ -93,7 +101,27 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
             console.log('Initializing workout detector for:', selectedWorkout.id);
             
             const callbacks = {
-              onRepComplete: setCurrentReps,
+              onRepComplete: (reps: number) => {
+                setCurrentReps(reps);
+                setLastRepTime(Date.now());
+                
+                // Audio feedback for completed rep
+                audioFeedback.repCompleted();
+                
+                // Check for motivational messages
+                const motivationalMessage = workoutMotivation.getMotivationalMessage(
+                  reps, 
+                  targetValue, 
+                  selectedWorkout.id
+                );
+                if (motivationalMessage) {
+                  audioFeedback.speak(motivationalMessage);
+                  setFeedback(motivationalMessage);
+                  setFeedbackType('correct');
+                  setShowFeedback(true);
+                  setTimeout(() => setShowFeedback(false), 3000);
+                }
+              },
               onPositionChange: setCurrentPosition,
               onFormFeedback: (message: string, type: 'correct' | 'warning' | 'error' = 'correct') => {
                 if (message !== feedback) {
@@ -101,8 +129,28 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
                   setFeedbackType(type);
                   setShowFeedback(true);
                   
+                  // Audio and visual feedback for form issues
+                  if (type === 'error' || type === 'warning') {
+                    audioFeedback.formAlert();
+                    setAlertBorder(true);
+                    setTimeout(() => setAlertBorder(false), 1000);
+                    
+                    // Add form issue to tracking
+                    setFormIssues(prev => [...prev, message]);
+                  }
+                  
                   // Auto-hide feedback after 4 seconds
                   setTimeout(() => setShowFeedback(false), 4000);
+                }
+              },
+              onPersonDetected: (detected: boolean) => {
+                setPersonInFrame(detected);
+                if (!detected) {
+                  const frameMessage = workoutMotivation.getComeIntoFrameMessage();
+                  audioFeedback.speak(frameMessage);
+                  setFeedback(frameMessage);
+                  setFeedbackType('warning');
+                  setShowFeedback(true);
                 }
               }
             };
@@ -158,6 +206,14 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
       setStartTime(new Date());
       setCurrentReps(0);
       setCurrentPosition('UP');
+      setFormIssues([]);
+      setPausedTime(0);
+      setLastPauseStart(null);
+      
+      // Resume audio context and provide start feedback
+      audioFeedback.resume();
+      audioFeedback.speak("Let's begin! Show me your best form!");
+      
       detectorRef.current.start();
     }
   }, [isActive]);
@@ -166,7 +222,10 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
   const pauseWorkout = useCallback(() => {
     if (detectorRef.current && isActive) {
       setIsActive(false);
+      setLastPauseStart(Date.now());
       detectorRef.current.stop();
+      
+      audioFeedback.speak("Workout paused. Take a breath!");
     }
   }, [isActive]);
   
@@ -188,17 +247,38 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
       detectorRef.current.stop();
     }
     
+    // Calculate accuracy based on form issues
+    const totalPossibleFormChecks = currentReps * 3; // Assume 3 form checks per rep
+    const formIssueCount = formIssues.length;
+    const accuracy = Math.max(60, Math.round((1 - (formIssueCount / totalPossibleFormChecks)) * 100));
+    
+    // Calculate calories based on actual performance
+    const baseCalories = selectedWorkout.calories * (currentReps / selectedWorkout.defaultValue);
+    const timeMultiplier = elapsedTime > 0 ? Math.min(1.2, 600 / elapsedTime) : 1; // Bonus for faster completion
+    const formMultiplier = accuracy / 100; // Penalty for poor form
+    const calories = Math.round(baseCalories * timeMultiplier * formMultiplier);
+    
     const results = {
       workoutType: selectedWorkout,
       targetValue,
       repsCompleted: currentReps,
       timeElapsed: elapsedTime,
-      accuracy: 95, // This would be calculated based on form feedback
-      calories: Math.round(selectedWorkout.calories * (currentReps / selectedWorkout.defaultValue))
+      accuracy,
+      calories,
+      formIssues: formIssues.length,
+      averageRepTime: currentReps > 0 ? elapsedTime / currentReps : 0
     };
     
+    // Completion feedback
+    if (currentReps >= targetValue) {
+      audioFeedback.achievement();
+      audioFeedback.speak(`Outstanding! You completed ${currentReps} reps with ${accuracy}% form accuracy!`);
+    } else {
+      audioFeedback.speak(`Good effort! You completed ${currentReps} out of ${targetValue} reps.`);
+    }
+    
     onWorkoutComplete(results);
-  }, [selectedWorkout, targetValue, currentReps, elapsedTime, onWorkoutComplete]);
+  }, [selectedWorkout, targetValue, currentReps, elapsedTime, formIssues, onWorkoutComplete]);
   
   // Check if workout is complete
   useEffect(() => {
@@ -310,7 +390,7 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
   }
   
   return (
-    <div className={`${isFullscreen ? 'fixed inset-0 z-50' : 'min-h-screen'} bg-gray-900 flex flex-col`}>
+    <div className={`${isFullscreen ? 'fixed inset-0 z-50' : 'min-h-screen'} bg-gray-900 flex flex-col ${alertBorder ? 'ring-4 ring-red-500 ring-opacity-75' : ''}`}>
       {/* Header */}
       <div className="bg-white/10 backdrop-blur-sm border-b border-white/20 p-2 md:p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -517,6 +597,11 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
             </div>
             
             <div className="flex items-center space-x-2">
+              {!personInFrame && (
+                <div className="px-2 py-1 bg-red-500 text-white rounded text-xs font-bold animate-pulse">
+                  FRAME
+                </div>
+              )}
               <motion.div
                 key={currentPosition}
                 initial={{ scale: 0.8, opacity: 0 }}
