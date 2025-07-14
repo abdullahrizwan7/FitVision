@@ -9,7 +9,8 @@ import {
   StopCircle,
   Settings,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Target
 } from 'lucide-react';
 import { WorkoutType, FormFeedback } from '../types/pose';
 import { createWorkoutDetector, createFallbackDetector } from '../utils/workoutDetectors';
@@ -45,6 +46,13 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
+  
+  // Format time helper function
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
   
   // Timer for elapsed time
   useEffect(() => {
@@ -337,9 +345,11 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Video Area */}
-        <div className="flex-1 relative min-h-0">
+      <div className="flex-1 flex flex-col">
+        {/* Video Area - Portrait optimized for mobile */}
+        <div className="flex-1 relative min-h-0 lg:flex lg:flex-row">
+          {/* Camera Container */}
+          <div className="flex-1 relative bg-black">
           {isLoading && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
               <div className="text-white text-center">
@@ -350,24 +360,24 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
             </div>
           )}
           
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          />
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
           
-          {/* Posture Alert Overlay */}
-          <PostureAlert
-            feedback={feedback}
-            type={feedbackType}
-            isVisible={showFeedback && !isLoading}
-          />
-          
-          {/* Controls Overlay */}
-          <div className="absolute bottom-2 lg:bottom-4 left-1/2 transform -translate-x-1/2">
-            <div className="flex items-center space-x-2 lg:space-x-4 bg-black/50 backdrop-blur-sm rounded-full px-3 lg:px-6 py-2 lg:py-3">
+            {/* Posture Alert Overlay */}
+            <PostureAlert
+              feedback={feedback}
+              type={feedbackType}
+              isVisible={showFeedback && !isLoading}
+            />
+            
+            {/* Controls Overlay */}
+            <div className="absolute bottom-2 lg:bottom-4 left-1/2 transform -translate-x-1/2">
+              <div className="flex items-center space-x-2 lg:space-x-4 bg-black/50 backdrop-blur-sm rounded-full px-3 lg:px-6 py-2 lg:py-3">
               {!isActive ? (
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -414,71 +424,116 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
                 <RotateCcw className="h-4 w-4 lg:h-6 lg:w-6" />
               </motion.button>
               
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={completeWorkout}
-                className="p-2 lg:p-3 rounded-full bg-purple-500 text-white hover:bg-purple-600 transition-colors touch-manipulation"
-              >
-                <StopCircle className="h-4 w-4 lg:h-6 lg:w-6" />
-              </motion.button>
-            </div>
-          </div>
-          
-          {/* Manual counting instructions for fallback mode */}
-          {useFallback && isActive && (
-            <div className="absolute top-2 lg:top-4 left-1/2 transform -translate-x-1/2 px-2">
-              <div className="bg-blue-500/80 backdrop-blur-sm text-white px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg text-xs lg:text-sm text-center">
-                Manual Mode: Tap the target button to count each rep
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={completeWorkout}
+                  className="p-2 lg:p-3 rounded-full bg-purple-500 text-white hover:bg-purple-600 transition-colors touch-manipulation"
+                >
+                  <StopCircle className="h-4 w-4 lg:h-6 lg:w-6" />
+                </motion.button>
               </div>
             </div>
-          )}
+            
+            {/* Manual counting instructions for fallback mode */}
+            {useFallback && isActive && (
+              <div className="absolute top-2 lg:top-4 left-1/2 transform -translate-x-1/2 px-2">
+                <div className="bg-blue-500/80 backdrop-blur-sm text-white px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg text-xs lg:text-sm text-center">
+                  Manual Mode: Tap the target button to count each rep
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Stats Sidebar - Desktop only */}
+          <div className="hidden lg:flex lg:w-80 bg-gray-800 p-6 flex-col h-full">
+            <RepCounter
+              currentReps={selectedWorkout.type === 'reps' ? currentReps : elapsedTime}
+              targetReps={targetValue}
+              workoutType={selectedWorkout.type}
+              currentPosition={currentPosition}
+              elapsedTime={elapsedTime}
+              caloriesEstimate={Math.round(selectedWorkout.calories * (currentReps / selectedWorkout.defaultValue))}
+              accuracy={95}
+            />
+            
+            {/* Workout Tips */}
+            <div className="mt-6 bg-white/10 rounded-lg p-4">
+              <h3 className="text-white font-semibold mb-3 text-base">Form Tips</h3>
+              <div className="text-white/70 text-sm space-y-2">
+                {selectedWorkout.id === 'pushups' && (
+                  <>
+                    <p>• Keep your body straight like a plank</p>
+                    <p>• Lower until elbows are at 90 degrees</p>
+                    <p>• Keep your core engaged</p>
+                  </>
+                )}
+                {selectedWorkout.id === 'squats' && (
+                  <>
+                    <p>• Keep your chest up and core tight</p>
+                    <p>• Lower until thighs are parallel</p>
+                    <p>• Knees should track over your toes</p>
+                  </>
+                )}
+                {selectedWorkout.id === 'plank' && (
+                  <>
+                    <p>• Keep your body straight</p>
+                    <p>• Shoulders over elbows</p>
+                    <p>• Engage your core muscles</p>
+                  </>
+                )}
+                {selectedWorkout.id === 'jumpingjacks' && (
+                  <>
+                    <p>• Jump feet apart, arms overhead</p>
+                    <p>• Land softly on balls of feet</p>
+                    <p>• Keep a steady rhythm</p>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
         
-        {/* Stats Sidebar - Mobile: Bottom Panel, Desktop: Right Sidebar */}
-        <div className="w-full lg:w-80 bg-gray-800 p-3 lg:p-6 flex flex-col h-auto lg:h-full">
-          <RepCounter
-            currentReps={selectedWorkout.type === 'reps' ? currentReps : elapsedTime}
-            targetReps={targetValue}
-            workoutType={selectedWorkout.type}
-            currentPosition={currentPosition}
-            elapsedTime={elapsedTime}
-            caloriesEstimate={Math.round(selectedWorkout.calories * (currentReps / selectedWorkout.defaultValue))}
-            accuracy={95}
-          />
-          
-          {/* Workout Tips */}
-          <div className="mt-3 lg:mt-6 bg-white/10 rounded-lg p-3 lg:p-4">
-            <h3 className="text-white font-semibold mb-2 lg:mb-3 text-sm lg:text-base">Form Tips</h3>
-            <div className="text-white/70 text-xs lg:text-sm space-y-1 lg:space-y-2">
-              {selectedWorkout.id === 'pushups' && (
-                <>
-                  <p>• Keep your body straight like a plank</p>
-                  <p>• Lower until elbows are at 90 degrees</p>
-                  <p>• Keep your core engaged</p>
-                </>
-              )}
-              {selectedWorkout.id === 'squats' && (
-                <>
-                  <p>• Keep your chest up and core tight</p>
-                  <p>• Lower until thighs are parallel</p>
-                  <p>• Knees should track over your toes</p>
-                </>
-              )}
-              {selectedWorkout.id === 'plank' && (
-                <>
-                  <p>• Keep your body straight</p>
-                  <p>• Shoulders over elbows</p>
-                  <p>• Engage your core muscles</p>
-                </>
-              )}
-              {selectedWorkout.id === 'jumpingjacks' && (
-                <>
-                  <p>• Jump feet apart, arms overhead</p>
-                  <p>• Land softly on balls of feet</p>
-                  <p>• Keep a steady rhythm</p>
-                </>
-              )}
+        {/* Mobile Portrait Stats Bar - Bottom */}
+        <div className="lg:hidden bg-gray-800 p-2 border-t border-gray-700">
+          <div className="flex items-center justify-between text-white text-sm">
+            <div className="flex items-center space-x-4">
+              <div className="text-center">
+                <div className="text-lg font-bold">
+                  {selectedWorkout.type === 'reps' ? currentReps : formatTime(elapsedTime)}
+                </div>
+                <div className="text-xs text-gray-300">
+                  {selectedWorkout.type === 'reps' ? `/${targetValue}` : `/${formatTime(targetValue)}`}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold">{formatTime(elapsedTime)}</div>
+                <div className="text-xs text-gray-300">Time</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold">{Math.round(selectedWorkout.calories * (currentReps / selectedWorkout.defaultValue))}</div>
+                <div className="text-xs text-gray-300">Cal</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <motion.div
+                key={currentPosition}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  currentPosition === 'DOWN' || currentPosition === 'HOLD' || currentPosition === 'OUT'
+                    ? 'bg-red-500 text-white'
+                    : currentPosition === 'UP' || currentPosition === 'IN'
+                      ? 'bg-green-500 text-white'
+                      : 'bg-yellow-500 text-white'
+                }`}
+              >
+                {currentPosition}
+              </motion.div>
+              <div className="text-xs text-gray-300">
+                {Math.round((selectedWorkout.type === 'reps' ? (currentReps / targetValue) : (elapsedTime / targetValue)) * 100)}%
+              </div>
             </div>
           </div>
         </div>
