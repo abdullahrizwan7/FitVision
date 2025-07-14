@@ -44,7 +44,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <img className="h-8 w-auto" src="/images/logo.png" alt="FitVision" />
+              <img className="h-8 w-auto" src="/FitVision/images/logo.png" alt="FitVision" />
               <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">
                 Fit<span className="text-purple-600">Vision</span>
               </span>

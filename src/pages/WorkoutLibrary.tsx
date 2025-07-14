@@ -33,7 +33,7 @@ const WorkoutLibrary = () => {
       difficulty: 'beginner',
       duration: 10,
       calories: 100,
-      image: '/images/pushups.png',
+      image: '/FitVision/images/pushups.png',
       aiTracking: true,
     },
     {
@@ -44,7 +44,7 @@ const WorkoutLibrary = () => {
       difficulty: 'beginner',
       duration: 15,
       calories: 150,
-      image: '/images/squad.png',
+      image: '/FitVision/images/squad.png',
       aiTracking: true,
     },
     {

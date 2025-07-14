@@ -61,7 +61,7 @@ const Home = () => {
         <div className="text-center py-16">
           <div className="relative">
             <img 
-              src="/images/logo.png" 
+              src="/FitVision/images/logo.png" 
               alt="FitVision Logo" 
               className="h-40 w-auto mx-auto mb-6 drop-shadow-lg" 
             />
