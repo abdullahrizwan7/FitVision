@@ -55,7 +55,7 @@ const WorkoutLibrary = () => {
       difficulty: 'intermediate',
       duration: 5,
       calories: 50,
-      image: '/images/plank.png',
+      image: '/FitVision/images/plank.png',
       aiTracking: true,
     },
     {
@@ -66,7 +66,7 @@ const WorkoutLibrary = () => {
       difficulty: 'beginner',
       duration: 10,
       calories: 120,
-      image: '/images/jumpingjacks.png',
+      image: '/FitVision/images/jumpingjacks.png',
       aiTracking: true,
     },
     {
@@ -77,7 +77,7 @@ const WorkoutLibrary = () => {
       difficulty: 'intermediate',
       duration: 20,
       calories: 150,
-      image: '/images/yoga.jpg',
+      image: '/FitVision/images/fitvision.jpg',
       aiTracking: false,
     },
     {
@@ -88,7 +88,7 @@ const WorkoutLibrary = () => {
       difficulty: 'advanced',
       duration: 25,
       calories: 300,
-      image: '/images/hiit.jpg',
+      image: '/FitVision/images/fitvision.jpg',
       aiTracking: false,
     },
   ];

@@ -9,7 +9,7 @@ import WorkoutSession from './pages/WorkoutSession';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/FitVision">
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <Navbar />
         <Routes>

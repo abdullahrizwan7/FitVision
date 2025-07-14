@@ -304,42 +304,42 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
   return (
     <div className={`${isFullscreen ? 'fixed inset-0 z-50' : 'min-h-screen'} bg-gray-900 flex flex-col`}>
       {/* Header */}
-      <div className="bg-white/10 backdrop-blur-sm border-b border-white/20 p-4">
+      <div className="bg-white/10 backdrop-blur-sm border-b border-white/20 p-2 md:p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className={`p-2 rounded-lg ${selectedWorkout.color} text-white`}>
+          <div className="flex items-center space-x-2 md:space-x-4">
+            <div className={`p-1 md:p-2 rounded-lg ${selectedWorkout.color} text-white`}>
               {selectedWorkout.icon}
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">{selectedWorkout.name}</h1>
-              <p className="text-white/70 text-sm">
+              <h1 className="text-lg md:text-xl font-bold text-white">{selectedWorkout.name}</h1>
+              <p className="text-white/70 text-xs md:text-sm">
                 Target: {targetValue} {selectedWorkout.unit}
               </p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 md:space-x-2">
             <button
               onClick={toggleFullscreen}
-              className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
+              className="p-1.5 md:p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all touch-manipulation"
             >
-              {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+              {isFullscreen ? <Minimize2 className="h-4 w-4 md:h-5 md:w-5" /> : <Maximize2 className="h-4 w-4 md:h-5 md:w-5" />}
             </button>
             
             <button
               onClick={onExit}
-              className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
+              className="p-1.5 md:p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all touch-manipulation"
             >
-              <StopCircle className="h-5 w-5" />
+              <StopCircle className="h-4 w-4 md:h-5 md:w-5" />
             </button>
           </div>
         </div>
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex flex-col lg:flex-row">
         {/* Video Area */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative min-h-0">
           {isLoading && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
               <div className="text-white text-center">
@@ -366,26 +366,26 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
           />
           
           {/* Controls Overlay */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-            <div className="flex items-center space-x-4 bg-black/50 backdrop-blur-sm rounded-full px-6 py-3">
+          <div className="absolute bottom-2 lg:bottom-4 left-1/2 transform -translate-x-1/2">
+            <div className="flex items-center space-x-2 lg:space-x-4 bg-black/50 backdrop-blur-sm rounded-full px-3 lg:px-6 py-2 lg:py-3">
               {!isActive ? (
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={startWorkout}
                   disabled={isLoading}
-                  className="p-3 rounded-full bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 lg:p-3 rounded-full bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
                 >
-                  <Play className="h-6 w-6" />
+                  <Play className="h-4 w-4 lg:h-6 lg:w-6" />
                 </motion.button>
               ) : (
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={pauseWorkout}
-                  className="p-3 rounded-full bg-yellow-500 text-white hover:bg-yellow-600 transition-colors"
+                  className="p-2 lg:p-3 rounded-full bg-yellow-500 text-white hover:bg-yellow-600 transition-colors touch-manipulation"
                 >
-                  <Pause className="h-6 w-6" />
+                  <Pause className="h-4 w-4 lg:h-6 lg:w-6" />
                 </motion.button>
               )}
               
@@ -399,9 +399,9 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
                       (detectorRef.current as any).addRep();
                     }
                   }}
-                  className="p-3 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                  className="p-2 lg:p-3 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors touch-manipulation"
                 >
-                  <Target className="h-6 w-6" />
+                  <Target className="h-4 w-4 lg:h-6 lg:w-6" />
                 </motion.button>
               )}
               
@@ -409,34 +409,34 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={resetWorkout}
-                className="p-3 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"
+                className="p-2 lg:p-3 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors touch-manipulation"
               >
-                <RotateCcw className="h-6 w-6" />
+                <RotateCcw className="h-4 w-4 lg:h-6 lg:w-6" />
               </motion.button>
               
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={completeWorkout}
-                className="p-3 rounded-full bg-purple-500 text-white hover:bg-purple-600 transition-colors"
+                className="p-2 lg:p-3 rounded-full bg-purple-500 text-white hover:bg-purple-600 transition-colors touch-manipulation"
               >
-                <StopCircle className="h-6 w-6" />
+                <StopCircle className="h-4 w-4 lg:h-6 lg:w-6" />
               </motion.button>
             </div>
           </div>
           
           {/* Manual counting instructions for fallback mode */}
           {useFallback && isActive && (
-            <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
-              <div className="bg-blue-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg text-sm">
+            <div className="absolute top-2 lg:top-4 left-1/2 transform -translate-x-1/2 px-2">
+              <div className="bg-blue-500/80 backdrop-blur-sm text-white px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg text-xs lg:text-sm text-center">
                 Manual Mode: Tap the target button to count each rep
               </div>
             </div>
           )}
         </div>
         
-        {/* Stats Sidebar */}
-        <div className="w-80 bg-gray-800 p-6 flex flex-col">
+        {/* Stats Sidebar - Mobile: Bottom Panel, Desktop: Right Sidebar */}
+        <div className="w-full lg:w-80 bg-gray-800 p-3 lg:p-6 flex flex-col h-auto lg:h-full">
           <RepCounter
             currentReps={selectedWorkout.type === 'reps' ? currentReps : elapsedTime}
             targetReps={targetValue}
@@ -448,9 +448,9 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
           />
           
           {/* Workout Tips */}
-          <div className="mt-6 bg-white/10 rounded-lg p-4">
-            <h3 className="text-white font-semibold mb-3">Form Tips</h3>
-            <div className="text-white/70 text-sm space-y-2">
+          <div className="mt-3 lg:mt-6 bg-white/10 rounded-lg p-3 lg:p-4">
+            <h3 className="text-white font-semibold mb-2 lg:mb-3 text-sm lg:text-base">Form Tips</h3>
+            <div className="text-white/70 text-xs lg:text-sm space-y-1 lg:space-y-2">
               {selectedWorkout.id === 'pushups' && (
                 <>
                   <p>• Keep your body straight like a plank</p>

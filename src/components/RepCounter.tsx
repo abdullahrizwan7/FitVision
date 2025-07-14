@@ -34,20 +34,20 @@ const RepCounter: React.FC<RepCounterProps> = ({
   };
   
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 lg:p-6 shadow-lg border border-gray-200">
       {/* Main Counter */}
-      <div className="text-center mb-6">
+      <div className="text-center mb-3 lg:mb-6">
         <motion.div
           key={currentReps}
           initial={{ scale: 1 }}
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 0.3 }}
-          className="text-6xl font-bold text-gray-900 mb-2"
+          className="text-3xl lg:text-6xl font-bold text-gray-900 mb-1 lg:mb-2"
         >
           {workoutType === 'reps' ? currentReps : formatTime(elapsedTime)}
         </motion.div>
         
-        <div className="text-lg text-gray-600">
+        <div className="text-sm lg:text-lg text-gray-600">
           {workoutType === 'reps' 
             ? `/ ${targetReps} reps` 
             : `/ ${formatTime(targetReps)} target`
@@ -55,7 +55,7 @@ const RepCounter: React.FC<RepCounterProps> = ({
         </div>
         
         {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-3 mt-4 overflow-hidden">
+        <div className="w-full bg-gray-200 rounded-full h-2 lg:h-3 mt-2 lg:mt-4 overflow-hidden">
           <motion.div
             className={`h-full rounded-full ${
               isComplete 
@@ -70,18 +70,18 @@ const RepCounter: React.FC<RepCounterProps> = ({
           />
         </div>
         
-        <div className="text-sm text-gray-500 mt-2">
+        <div className="text-xs lg:text-sm text-gray-500 mt-1 lg:mt-2">
           {Math.round(progress)}% Complete
         </div>
       </div>
       
       {/* Position Indicator */}
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-3 lg:mb-6">
         <motion.div
           key={currentPosition}
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className={`px-6 py-3 rounded-full font-bold text-lg ${
+          className={`px-3 lg:px-6 py-1.5 lg:py-3 rounded-full font-bold text-sm lg:text-lg ${
             currentPosition === 'DOWN' || currentPosition === 'HOLD' || currentPosition === 'OUT'
               ? 'bg-red-100 text-red-700 border-2 border-red-300'
               : currentPosition === 'UP' || currentPosition === 'IN'
@@ -94,32 +94,32 @@ const RepCounter: React.FC<RepCounterProps> = ({
       </div>
       
       {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 lg:gap-4">
         <div className="text-center">
-          <div className="flex justify-center mb-2">
-            <Clock className="h-5 w-5 text-blue-500" />
+          <div className="flex justify-center mb-1 lg:mb-2">
+            <Clock className="h-4 w-4 lg:h-5 lg:w-5 text-blue-500" />
           </div>
-          <div className="text-lg font-semibold text-gray-900">
+          <div className="text-sm lg:text-lg font-semibold text-gray-900">
             {formatTime(elapsedTime)}
           </div>
           <div className="text-xs text-gray-500">Time</div>
         </div>
         
         <div className="text-center">
-          <div className="flex justify-center mb-2">
-            <Flame className="h-5 w-5 text-orange-500" />
+          <div className="flex justify-center mb-1 lg:mb-2">
+            <Flame className="h-4 w-4 lg:h-5 lg:w-5 text-orange-500" />
           </div>
-          <div className="text-lg font-semibold text-gray-900">
+          <div className="text-sm lg:text-lg font-semibold text-gray-900">
             {Math.round(caloriesEstimate)}
           </div>
           <div className="text-xs text-gray-500">Calories</div>
         </div>
         
         <div className="text-center">
-          <div className="flex justify-center mb-2">
-            <TrendingUp className="h-5 w-5 text-green-500" />
+          <div className="flex justify-center mb-1 lg:mb-2">
+            <TrendingUp className="h-4 w-4 lg:h-5 lg:w-5 text-green-500" />
           </div>
-          <div className="text-lg font-semibold text-gray-900">
+          <div className="text-sm lg:text-lg font-semibold text-gray-900">
             {Math.round(accuracy)}%
           </div>
           <div className="text-xs text-gray-500">Form</div>
@@ -131,12 +131,12 @@ const RepCounter: React.FC<RepCounterProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-6 text-center p-4 bg-green-100 rounded-lg border-2 border-green-300"
+          className="mt-3 lg:mt-6 text-center p-3 lg:p-4 bg-green-100 rounded-lg border-2 border-green-300"
         >
-          <div className="text-green-700 font-bold text-lg">
+          <div className="text-green-700 font-bold text-base lg:text-lg">
             🎉 Workout Complete!
           </div>
-          <div className="text-green-600 text-sm mt-1">
+          <div className="text-green-600 text-xs lg:text-sm mt-1">
             Great job! You've reached your target.
           </div>
         </motion.div>
