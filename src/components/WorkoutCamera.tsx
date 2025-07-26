@@ -171,19 +171,19 @@ const WorkoutCamera: React.FC<WorkoutCameraProps> = ({
             await detectorRef.current.initialize();
             console.log('Detector initialized successfully');
             setIsLoading(false);
-          } catch (detectorError) {
+          } catch (detectorError: any) {
             console.error('Detector initialization error:', detectorError);
-            console.error('Error stack:', detectorError.stack);
+            console.error('Error stack:', detectorError?.stack);
             
             let errorMessage = 'Failed to initialize AI detection.';
-            if (detectorError.message) {
+            if (detectorError?.message) {
               errorMessage += ` Details: ${detectorError.message}`;
             }
             
             // Check for specific error types
-            if (detectorError.message?.includes('WebGL')) {
+            if (detectorError?.message?.includes('WebGL')) {
               errorMessage = 'WebGL not supported. Please use a modern browser with hardware acceleration enabled.';
-            } else if (detectorError.message?.includes('network') || detectorError.message?.includes('fetch')) {
+            } else if (detectorError?.message?.includes('network') || detectorError?.message?.includes('fetch')) {
               errorMessage = 'Failed to download AI model. Please check your internet connection.';
             }
             

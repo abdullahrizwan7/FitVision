@@ -70,10 +70,10 @@ const Home = () => {
             </div>
           </div>
           
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
+          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl sm:tracking-tight lg:text-6xl">
             Fit<span className="text-purple-600">Vision</span>
           </h1>
-          <p className="mt-5 max-w-2xl mx-auto text-xl text-gray-600">
+          <p className="mt-5 max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300">
             Your AI-Powered Personal Trainer with Real-Time Pose Detection, 
             Smart Rep Counting & Posture Correction
           </p>
@@ -88,7 +88,7 @@ const Home = () => {
             </Link>
             <Link
               to="/workout-library"
-              className="inline-flex items-center justify-center px-8 py-4 border-2 border-purple-600 text-lg font-medium rounded-lg text-purple-600 bg-white hover:bg-purple-50 shadow-lg transform hover:scale-105 transition-all duration-200"
+              className="inline-flex items-center justify-center px-8 py-4 border-2 border-purple-600 text-lg font-medium rounded-lg text-purple-600 bg-white dark:bg-gray-800 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700 shadow-lg transform hover:scale-105 transition-all duration-200"
             >
               <CameraIcon className="h-5 w-5 mr-2" />
               Browse AI Workouts
@@ -97,15 +97,15 @@ const Home = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="py-12 border-y border-gray-200 bg-white/50 backdrop-blur-sm rounded-2xl mb-16">
+        <div className="py-12 border-y border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl mb-16">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="flex justify-center text-purple-600 mb-2">
                   {stat.icon}
                 </div>
-                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                <div className="text-sm text-gray-500">{stat.label}</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -114,22 +114,22 @@ const Home = () => {
         {/* AI Features Section */}
         <div className="py-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
               Advanced AI Features
             </h2>
-            <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-600">
+            <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300">
               Powered by MediaPipe, OpenCV, and TensorFlow for the most accurate fitness tracking
             </p>
           </div>
           
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             {aiFeatures.map((feature, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+              <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100 dark:border-gray-700">
                 <div className={`inline-flex p-3 rounded-lg text-white mb-4 ${feature.color}`}>
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -138,22 +138,22 @@ const Home = () => {
         </div>
 
         {/* Supported Workouts Section */}
-        <div className="py-16 bg-white rounded-2xl shadow-sm">
+        <div className="py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm">
           <div className="px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
                 AI-Supported Workouts
               </h2>
-              <p className="mt-4 text-xl text-gray-600">
+              <p className="mt-4 text-xl text-gray-600 dark:text-gray-300">
                 Each workout includes real-time AI analysis and feedback
               </p>
             </div>
             
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {workoutTypes.map((workout, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-6 hover:border-purple-300 transition-colors duration-200">
+                <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:border-purple-300 dark:hover:border-purple-400 transition-colors duration-200">
                   <div className="flex justify-between items-start mb-3">
-                    <h3 className="font-semibold text-gray-900">{workout.name}</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{workout.name}</h3>
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       workout.difficulty === 'Beginner' ? 'bg-green-100 text-green-800' :
                       workout.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
@@ -162,7 +162,7 @@ const Home = () => {
                       {workout.difficulty}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 mb-3">{workout.reps}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{workout.reps}</p>
                   <div className="flex items-center text-xs text-purple-600">
                     <CpuChipIcon className="h-4 w-4 mr-1" />
                     AI Tracking Enabled
@@ -176,7 +176,7 @@ const Home = () => {
         {/* How It Works Section */}
         <div className="py-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
               How FitVision AI Works
             </h2>
           </div>
@@ -186,8 +186,8 @@ const Home = () => {
               <div className="bg-purple-100 rounded-full p-6 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                 <span className="text-2xl font-bold text-purple-600">1</span>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Camera Setup</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Camera Setup</h3>
+              <p className="text-gray-600 dark:text-gray-300">
                 Position yourself in front of your device camera. Our AI will detect your body pose in real-time.
               </p>
             </div>
@@ -196,8 +196,8 @@ const Home = () => {
               <div className="bg-blue-100 rounded-full p-6 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                 <span className="text-2xl font-bold text-blue-600">2</span>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">AI Analysis</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">AI Analysis</h3>
+              <p className="text-gray-600 dark:text-gray-300">
                 MediaPipe tracks 33+ body keypoints while OpenCV counts reps and analyzes your form.
               </p>
             </div>
@@ -206,8 +206,8 @@ const Home = () => {
               <div className="bg-green-100 rounded-full p-6 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                 <span className="text-2xl font-bold text-green-600">3</span>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Real-Time Feedback</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Real-Time Feedback</h3>
+              <p className="text-gray-600 dark:text-gray-300">
                 Get instant posture corrections, rep counts, and performance analytics during your workout.
               </p>
             </div>
@@ -224,7 +224,7 @@ const Home = () => {
           </p>
           <Link
             to="/workout-session"
-            className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-lg font-medium rounded-lg text-purple-600 bg-white hover:bg-gray-100 shadow-lg transform hover:scale-105 transition-all duration-200"
+            className="inline-flex items-center justify-center px-8 py-4 border-2 border-white dark:border-gray-600 text-lg font-medium rounded-lg text-purple-600 dark:text-purple-400 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-lg transform hover:scale-105 transition-all duration-200"
           >
             <PlayIcon className="h-5 w-5 mr-2" />
             Start Your First AI Workout

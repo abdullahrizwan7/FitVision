@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Trophy, 
@@ -10,9 +10,12 @@ import {
   RotateCcw,
   Home,
   Share2,
-  Download
+  Download,
+  CheckCircle
 } from 'lucide-react';
 import { WorkoutSession } from '../types/pose';
+import { useAuth } from '../contexts/AuthContext';
+import { useWorkoutData } from '../hooks/useWorkoutData';
 
 interface SummaryPageProps {
   session: WorkoutSession;
@@ -27,6 +30,29 @@ const SummaryPage: React.FC<SummaryPageProps> = ({
   onNewWorkout,
   onHome
 }) => {
+  const { user } = useAuth();
+  const { saveWorkout } = useWorkoutData();
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  // Auto-save workout when component mounts
+  useEffect(() => {
+    const saveWorkoutSession = async () => {
+      if (user && !isSaved && !isSaving) {
+        try {
+          setIsSaving(true);
+          await saveWorkout(session);
+          setIsSaved(true);
+        } catch (error) {
+          console.error('Failed to save workout:', error);
+        } finally {
+          setIsSaving(false);
+        }
+      }
+    };
+
+    saveWorkoutSession();
+  }, [user, session, isSaved, isSaving, saveWorkout]);
   const duration = session.endTime 
     ? Math.floor((session.endTime.getTime() - session.startTime.getTime()) / 1000)
     : 0;
@@ -82,6 +108,37 @@ const SummaryPage: React.FC<SummaryPageProps> = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Save Status */}
+        {user && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <div className={`flex items-center justify-center space-x-2 p-3 rounded-lg ${
+              isSaved 
+                ? 'bg-green-100 text-green-700' 
+                : isSaving 
+                ? 'bg-yellow-100 text-yellow-700' 
+                : 'bg-gray-100 text-gray-700'
+            }`}>
+              {isSaved ? (
+                <>
+                  <CheckCircle className="h-4 w-4" />
+                  <span className="text-sm font-medium">Workout saved to your profile!</span>
+                </>
+              ) : isSaving ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600"></div>
+                  <span className="text-sm font-medium">Saving workout...</span>
+                </>
+              ) : (
+                <span className="text-sm font-medium">Ready to save</span>
+              )}
+            </div>
+          </motion.div>
+        )}
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

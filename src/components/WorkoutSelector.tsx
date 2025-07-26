@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Dumbbell, 
   Activity, 
@@ -11,7 +11,8 @@ import {
   Zap,
   RotateCcw,
   Award,
-  Play
+  Play,
+  X
 } from 'lucide-react';
 import { WorkoutType } from '../types/pose';
 
@@ -122,6 +123,10 @@ const WorkoutSelector: React.FC<WorkoutSelectorProps> = ({
     }
   };
 
+  const closeModal = () => {
+    setSelectedWorkout(null);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header */}
@@ -172,11 +177,7 @@ const WorkoutSelector: React.FC<WorkoutSelectorProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             onClick={() => handleWorkoutSelect(workout)}
-            className={`bg-white rounded-2xl p-6 shadow-lg border-2 cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-              selectedWorkout?.id === workout.id
-                ? `${workout.lightColor} border-2`
-                : 'border-gray-100 hover:border-purple-200'
-            }`}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border-2 cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-gray-100 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-400"
           >
             <div className="flex items-center justify-between mb-4">
               <div className={`p-3 rounded-xl ${workout.color} text-white`}>
@@ -205,102 +206,121 @@ const WorkoutSelector: React.FC<WorkoutSelectorProps> = ({
                 )}
                 <span className="text-sm">{workout.type === 'reps' ? 'Rep-based' : 'Time-based'}</span>
               </div>
-              {selectedWorkout?.id === workout.id && (
-                <div className="w-3 h-3 bg-purple-600 rounded-full animate-pulse"></div>
-              )}
             </div>
           </motion.div>
         ))}
       </div>
 
-      {/* Workout Configuration */}
-      {selectedWorkout && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100 max-w-2xl mx-auto mb-8"
-        >
-          <div className="text-center mb-6">
-            <div className={`inline-flex p-4 rounded-2xl ${selectedWorkout.color} text-white mb-4`}>
-              {selectedWorkout.icon}
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedWorkout.name}</h2>
-            <p className="text-gray-600">{selectedWorkout.description}</p>
-          </div>
-
-          <div className="space-y-6">
-            {/* Value Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Target {selectedWorkout.type === 'reps' ? 'Reps' : 'Duration'}
-              </label>
-              <div className="grid grid-cols-3 gap-3">
-                {selectedWorkout.options.map(option => (
-                  <button
-                    key={option}
-                    onClick={() => setSelectedValue(option)}
-                    className={`p-3 rounded-lg border-2 font-medium transition-all duration-200 ${
-                      selectedValue === option
-                        ? 'border-purple-500 bg-purple-50 text-purple-700'
-                        : 'border-gray-200 text-gray-700 hover:border-purple-300'
-                    }`}
-                  >
-                    {option} {selectedWorkout.unit}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Workout Stats */}
-            <div className="grid grid-cols-3 gap-4 py-4 border-t border-gray-200">
-              <div className="text-center">
-                <div className="flex justify-center mb-2">
-                  <Flame className="h-5 w-5 text-orange-500" />
-                </div>
-                <div className="text-lg font-semibold text-gray-900">
-                  {Math.round(selectedWorkout.calories * (selectedValue / selectedWorkout.defaultValue))}
-                </div>
-                <div className="text-sm text-gray-500">Calories</div>
-              </div>
-              
-              <div className="text-center">
-                <div className="flex justify-center mb-2">
-                  <Timer className="h-5 w-5 text-blue-500" />
-                </div>
-                <div className="text-lg font-semibold text-gray-900">
-                  {selectedWorkout.type === 'reps' 
-                    ? `${Math.round(selectedValue * 3)}s`
-                    : `${selectedValue}s`
-                  }
-                </div>
-                <div className="text-sm text-gray-500">Est. Time</div>
-              </div>
-              
-              <div className="text-center">
-                <div className="flex justify-center mb-2">
-                  <TrendingUp className="h-5 w-5 text-green-500" />
-                </div>
-                <div className="text-lg font-semibold text-gray-900">
-                  {selectedWorkout.difficulty}
-                </div>
-                <div className="text-sm text-gray-500">Level</div>
-              </div>
-            </div>
-
-            {/* Start Button */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleStartWorkout}
-              disabled={isLoading}
-              className="w-full py-4 px-6 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+      {/* Modal Overlay for Workout Configuration */}
+      <AnimatePresence>
+        {selectedWorkout && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            onClick={closeModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             >
-              <Play className="h-5 w-5" />
-              <span>{isLoading ? 'Starting...' : 'Start AI Workout'}</span>
-            </motion.button>
-          </div>
-        </motion.div>
-      )}
+              {/* Close Button */}
+              <div className="relative">
+                <button
+                  onClick={closeModal}
+                  className="absolute top-0 right-0 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="text-center mb-6">
+                <div className={`inline-flex p-4 rounded-2xl ${selectedWorkout.color} text-white mb-4`}>
+                  {selectedWorkout.icon}
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedWorkout.name}</h2>
+                <p className="text-gray-600">{selectedWorkout.description}</p>
+              </div>
+
+              <div className="space-y-6">
+                {/* Value Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Target {selectedWorkout.type === 'reps' ? 'Reps' : 'Duration'}
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {selectedWorkout.options.map(option => (
+                      <button
+                        key={option}
+                        onClick={() => setSelectedValue(option)}
+                        className={`p-3 rounded-lg border-2 font-medium transition-all duration-200 ${
+                          selectedValue === option
+                            ? 'border-purple-500 bg-purple-50 text-purple-700'
+                            : 'border-gray-200 text-gray-700 hover:border-purple-300'
+                        }`}
+                      >
+                        {option} {selectedWorkout.unit}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Workout Stats */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-t border-gray-200">
+                  <div className="text-center">
+                    <div className="flex justify-center mb-2">
+                      <Flame className="h-5 w-5 text-orange-500" />
+                    </div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {Math.round(selectedWorkout.calories * (selectedValue / selectedWorkout.defaultValue))}
+                    </div>
+                    <div className="text-sm text-gray-500">Calories</div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="flex justify-center mb-2">
+                      <Timer className="h-5 w-5 text-blue-500" />
+                    </div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {selectedWorkout.type === 'reps' 
+                        ? `${Math.round(selectedValue * 3)}s`
+                        : `${selectedValue}s`
+                      }
+                    </div>
+                    <div className="text-sm text-gray-500">Est. Time</div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="flex justify-center mb-2">
+                      <TrendingUp className="h-5 w-5 text-green-500" />
+                    </div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {selectedWorkout.difficulty}
+                    </div>
+                    <div className="text-sm text-gray-500">Level</div>
+                  </div>
+                </div>
+
+                {/* Start Button */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleStartWorkout}
+                  disabled={isLoading}
+                  className="w-full py-4 px-6 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                >
+                  <Play className="h-5 w-5" />
+                  <span>{isLoading ? 'Starting...' : 'Start AI Workout'}</span>
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

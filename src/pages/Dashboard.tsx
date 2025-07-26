@@ -1,366 +1,347 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useAuth } from '../contexts/AuthContext';
+import { useWorkoutData } from '../hooks/useWorkoutData';
 import { 
-  BarChart, 
-  Calendar, 
-  Dumbbell, 
+  Play,
   TrendingUp, 
   Award, 
   Clock, 
   Flame,
-  ChevronRight,
   Target,
-  Zap,
   Brain,
   Camera,
-  AlertTriangle,
-  Activity
+  Dumbbell,
+  Activity,
+  Calendar,
+  ChevronRight,
+  Zap
 } from 'lucide-react';
 
 const Dashboard = () => {
-  // Enhanced mock data for dashboard
-  const [recentWorkouts] = useState([
-    { 
-      id: 1, 
-      name: 'AI Push-ups', 
-      date: '2023-11-15', 
-      reps: 15, 
-      duration: '10 min',
-      formScore: 85,
-      aiAccuracy: 94,
-      postureAlerts: 2,
-      calories: 45
-    },
-    { 
-      id: 2, 
-      name: 'Smart Squats', 
-      date: '2023-11-13', 
-      reps: 20, 
-      duration: '12 min',
-      formScore: 90,
-      aiAccuracy: 96,
-      postureAlerts: 1,
-      calories: 60
-    },
-    { 
-      id: 3, 
-      name: 'AI Jumping Jacks', 
-      date: '2023-11-10', 
-      reps: 30, 
-      duration: '15 min',
-      formScore: 88,
-      aiAccuracy: 92,
-      postureAlerts: 3,
-      calories: 75
+  const { user, userProfile } = useAuth();
+  const { workouts, stats, loading } = useWorkoutData();
+
+  if (loading) {
+    return (
+      <div className="pt-20 min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Use real data or defaults
+  const recentWorkouts = workouts.slice(0, 3).map(workout => ({
+    id: workout.id,
+    name: workout.workoutType.name,
+    date: workout.createdAt.toDate().toISOString().split('T')[0],
+    reps: workout.repsCompleted,
+    duration: `${Math.floor(workout.duration / 60)} min`,
+    formScore: workout.formScore,
+    calories: workout.calories
+  }));
+
+  const weeklyStats = {
+    workoutsCompleted: stats?.totalWorkouts || 0,
+    totalReps: stats?.totalReps || 0,
+    totalMinutes: stats?.totalMinutes || 0,
+    avgFormScore: stats?.avgFormScore || 0,
+    totalCalories: stats?.totalCalories || 0,
+    streak: stats?.currentStreak || 0
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
     }
-  ]);
+  };
 
-  const [weeklyStats] = useState({
-    workoutsCompleted: 3,
-    totalReps: 65,
-    totalDuration: 37,
-    avgFormScore: 88,
-    avgAiAccuracy: 94,
-    totalCalories: 180,
-    postureImprovements: 15,
-    aiInsights: 8
-  });
-
-  const [aiInsights] = useState([
-    {
-      type: 'improvement',
-      title: 'Form Improvement Detected',
-      message: 'Your squat form has improved by 12% this week!',
-      icon: <TrendingUp className="h-5 w-5" />,
-      color: 'text-green-600 bg-green-100'
-    },
-    {
-      type: 'alert',
-      title: 'Posture Alert Pattern',
-      message: 'You tend to lean forward during push-ups. Focus on core engagement.',
-      icon: <AlertTriangle className="h-5 w-5" />,
-      color: 'text-yellow-600 bg-yellow-100'
-    },
-    {
-      type: 'achievement',
-      title: 'AI Accuracy Milestone',
-      message: 'Congratulations! Your workouts are being tracked with 95%+ accuracy.',
-      icon: <Brain className="h-5 w-5" />,
-      color: 'text-purple-600 bg-purple-100'
-    }
-  ]);
-
-  // Enhanced weekly activity chart with AI metrics
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const activityData = [20, 35, 0, 45, 0, 30, 0]; // Minutes per day
-  const aiAccuracyData = [92, 95, 0, 96, 0, 94, 0]; // AI accuracy per day
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
 
   return (
-    <div className="pt-20 min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+    <div className="pt-20 min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="pb-5 border-b border-gray-200 mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">AI Fitness Dashboard</h1>
-          <p className="mt-2 text-sm text-gray-500">
-            Track your AI-powered fitness progress with real-time analytics and insights
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center py-12"
+        >
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Welcome Back{userProfile?.displayName ? `, ${userProfile.displayName}` : ''}
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            AI-powered fitness tracking with real-time form correction and progress analytics
           </p>
-        </div>
+        </motion.div>
 
-        {/* AI Quick Actions */}
-        <div className="mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Quick Actions */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+        >
+          <motion.div variants={itemVariants}>
             <Link 
               to="/workout-session" 
-              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="group bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-700 dark:to-blue-700 text-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 block"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center mb-2">
-                    <Camera className="h-6 w-6 mr-2" />
-                    <span className="text-xs bg-white/20 px-2 py-1 rounded-full">AI POWERED</span>
-                  </div>
-                  <h3 className="text-xl font-bold">Start AI Workout</h3>
-                  <p className="text-sm text-purple-100">Real-time pose detection & rep counting</p>
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-white/20 rounded-xl">
+                  <Play className="h-8 w-8" />
                 </div>
-                <ChevronRight className="h-6 w-6" />
+                <div className="flex items-center text-white/80">
+                  <span className="text-xs bg-white/20 px-3 py-1 rounded-full">AI POWERED</span>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold mb-2">Start Workout</h3>
+              <p className="text-purple-100 mb-4">Real-time pose detection & form feedback</p>
+              <div className="flex items-center text-white/80">
+                <span className="text-sm">Begin your fitness journey</span>
+                <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
-            
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
             <Link 
               to="/workout-library" 
-              className="bg-white text-gray-900 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="group bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 block border border-gray-100 dark:border-gray-700"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center mb-2">
-                    <Brain className="h-6 w-6 mr-2 text-purple-600" />
-                    <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">SMART</span>
-                  </div>
-                  <h3 className="text-xl font-bold">AI Workouts</h3>
-                  <p className="text-sm text-gray-500">Browse intelligent workout library</p>
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-purple-100 rounded-xl">
+                  <Dumbbell className="h-8 w-8 text-purple-600" />
                 </div>
-                <ChevronRight className="h-6 w-6 text-gray-400" />
+                <div className="flex items-center">
+                  <span className="text-xs bg-purple-100 text-purple-600 px-3 py-1 rounded-full">LIBRARY</span>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Browse Workouts</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">Discover AI-tracked exercises</p>
+              <div className="flex items-center text-purple-600">
+                <span className="text-sm font-medium">Explore collection</span>
+                <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
+          </motion.div>
 
-            <div className="bg-gradient-to-r from-green-500 to-teal-500 text-white p-6 rounded-xl shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center mb-2">
-                    <Zap className="h-6 w-6 mr-2" />
-                    <span className="text-xs bg-white/20 px-2 py-1 rounded-full">LIVE</span>
-                  </div>
-                  <h3 className="text-xl font-bold">AI Accuracy</h3>
-                  <p className="text-2xl font-bold">{weeklyStats.avgAiAccuracy}%</p>
+          <motion.div variants={itemVariants}>
+            <Link 
+              to="/analytics" 
+              className="group bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 block border border-gray-100 dark:border-gray-700"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-green-100 rounded-xl">
+                  <TrendingUp className="h-8 w-8 text-green-600" />
                 </div>
-                <Activity className="h-8 w-8" />
+                <div className="flex items-center">
+                  <span className="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-full">INSIGHTS</span>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">View Analytics</h3>
+              <p className="text-gray-600 mb-4">Track your fitness progress</p>
+              <div className="flex items-center text-green-600">
+                <span className="text-sm font-medium">See detailed metrics</span>
+                <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+          </motion.div>
+        </motion.div>
 
-        {/* Main Dashboard Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Enhanced Weekly Stats */}
-          <div className="bg-white p-6 rounded-xl shadow-lg">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Weekly AI Stats</h2>
-              <div className="flex items-center space-x-2">
-                <Brain className="h-5 w-5 text-purple-600" />
-                <BarChart className="h-5 w-5 text-purple-600" />
-              </div>
+        {/* Weekly Stats */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12"
+        >
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 text-center"
+          >
+            <div className="inline-flex p-3 bg-purple-100 rounded-xl mb-3">
+              <Dumbbell className="h-6 w-6 text-purple-600" />
             </div>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                <div className="flex items-center">
-                  <Dumbbell className="h-5 w-5 text-purple-600 mr-3" />
-                  <span className="text-gray-600">AI Workouts</span>
-                </div>
-                <span className="font-bold text-lg">{weeklyStats.workoutsCompleted}</span>
-              </div>
-              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                <div className="flex items-center">
-                  <Target className="h-5 w-5 text-green-600 mr-3" />
-                  <span className="text-gray-600">Auto-Counted Reps</span>
-                </div>
-                <span className="font-bold text-lg">{weeklyStats.totalReps}</span>
-              </div>
-              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                <div className="flex items-center">
-                  <Clock className="h-5 w-5 text-blue-600 mr-3" />
-                  <span className="text-gray-600">Active Minutes</span>
-                </div>
-                <span className="font-bold text-lg">{weeklyStats.totalDuration}</span>
-              </div>
-              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                <div className="flex items-center">
-                  <Flame className="h-5 w-5 text-red-600 mr-3" />
-                  <span className="text-gray-600">Calories Burned</span>
-                </div>
-                <span className="font-bold text-lg">{weeklyStats.totalCalories}</span>
-              </div>
-              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                <div className="flex items-center">
-                  <Award className="h-5 w-5 text-yellow-600 mr-3" />
-                  <span className="text-gray-600">Avg. Form Score</span>
-                </div>
-                <span className="font-bold text-lg">{weeklyStats.avgFormScore}%</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <Brain className="h-5 w-5 text-purple-600 mr-3" />
-                  <span className="text-gray-600">AI Accuracy</span>
-                </div>
-                <span className="font-bold text-lg text-purple-600">{weeklyStats.avgAiAccuracy}%</span>
-              </div>
-            </div>
-          </div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{weeklyStats.workoutsCompleted}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Workouts</div>
+          </motion.div>
 
-          {/* Enhanced Weekly Activity Chart with AI Metrics */}
-          <div className="bg-white p-6 rounded-xl shadow-lg">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">AI Activity Tracking</h2>
-              <div className="flex items-center space-x-2">
-                <Flame className="h-5 w-5 text-orange-500" />
-                <Brain className="h-5 w-5 text-purple-600" />
-              </div>
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 text-center"
+          >
+            <div className="inline-flex p-3 bg-blue-100 rounded-xl mb-3">
+              <Target className="h-6 w-6 text-blue-600" />
             </div>
-            <div className="h-48 flex items-end justify-between space-x-2">
-              {weekDays.map((day, index) => (
-                <div key={day} className="flex flex-col items-center flex-1">
-                  <div className="w-full flex flex-col items-center space-y-1">
-                    {/* Activity bar */}
-                    <div 
-                      className="w-6 bg-gradient-to-t from-purple-600 to-blue-500 rounded-t-sm" 
-                      style={{ 
-                        height: `${activityData[index] / 45 * 120}px`,
-                        opacity: activityData[index] === 0 ? 0.3 : 1
-                      }}
-                    ></div>
-                    {/* AI accuracy indicator */}
-                    {activityData[index] > 0 && (
-                      <div className="text-xs text-purple-600 font-semibold">
-                        {aiAccuracyData[index]}%
-                      </div>
-                    )}
-                  </div>
-                  <span className="text-xs text-gray-500 mt-2">{day}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-gradient-to-t from-purple-600 to-blue-500 rounded mr-2"></div>
-                <span>Workout Minutes</span>
-              </div>
-              <div className="flex items-center">
-                <Brain className="h-3 w-3 text-purple-600 mr-1" />
-                <span>AI Accuracy %</span>
-              </div>
-            </div>
-          </div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{weeklyStats.totalReps}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Total Reps</div>
+          </motion.div>
 
-          {/* AI Insights Panel */}
-          <div className="bg-white p-6 rounded-xl shadow-lg">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">AI Insights</h2>
-              <Brain className="h-5 w-5 text-purple-600" />
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 text-center"
+          >
+            <div className="inline-flex p-3 bg-green-100 rounded-xl mb-3">
+              <Clock className="h-6 w-6 text-green-600" />
             </div>
-            <div className="space-y-4">
-              {aiInsights.map((insight, index) => (
-                <div key={index} className="border border-gray-100 rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-start space-x-3">
-                    <div className={`p-2 rounded-lg ${insight.color}`}>
-                      {insight.icon}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 text-sm">{insight.title}</h4>
-                      <p className="text-xs text-gray-600 mt-1">{insight.message}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{weeklyStats.totalMinutes}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Minutes</div>
+          </motion.div>
 
-        {/* Enhanced Recent Workouts */}
-        <div className="mt-8 bg-white p-6 rounded-xl shadow-lg">
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 text-center"
+          >
+            <div className="inline-flex p-3 bg-yellow-100 rounded-xl mb-3">
+              <Award className="h-6 w-6 text-yellow-600" />
+            </div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{weeklyStats.avgFormScore}%</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Form Score</div>
+          </motion.div>
+
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 text-center"
+          >
+            <div className="inline-flex p-3 bg-red-100 rounded-xl mb-3">
+              <Flame className="h-6 w-6 text-red-600" />
+            </div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{weeklyStats.totalCalories}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Calories</div>
+          </motion.div>
+
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 text-center"
+          >
+            <div className="inline-flex p-3 bg-orange-100 rounded-xl mb-3">
+              <Zap className="h-6 w-6 text-orange-600" />
+            </div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{weeklyStats.streak}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Day Streak</div>
+          </motion.div>
+        </motion.div>
+
+        {/* Recent Workouts */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8 mb-8"
+        >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Recent AI Workouts</h2>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recent Workouts</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Your latest AI-tracked sessions</p>
+            </div>
             <div className="flex items-center space-x-2">
               <Camera className="h-5 w-5 text-purple-600" />
-              <Calendar className="h-5 w-5 text-purple-600" />
+              <Brain className="h-5 w-5 text-purple-600" />
             </div>
           </div>
+
           {recentWorkouts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentWorkouts.map(workout => (
-                <div key={workout.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium text-gray-900">{workout.name}</h3>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>{workout.duration}</span>
-                      <span className="mx-2">•</span>
-                      <span>{new Date(workout.date).toLocaleDateString()}</span>
+            <div className="space-y-4">
+              {recentWorkouts.map((workout, index) => (
+                <motion.div
+                  key={workout.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:shadow-md transition-all duration-200"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-purple-100 rounded-xl">
+                      <Activity className="h-6 w-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{workout.name}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(workout.date).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium">{workout.reps} reps</div>
-                    <div className="text-xs text-gray-500">Form: {workout.formScore}%</div>
-                    <div className="text-xs text-gray-500">AI Accuracy: {workout.aiAccuracy}%</div>
-                    <div className="text-xs text-gray-500">Calories: {workout.calories}</div>
+                  
+                  <div className="flex items-center space-x-6 text-sm">
+                    <div className="text-center">
+                      <div className="font-semibold text-gray-900">{workout.reps}</div>
+                      <div className="text-gray-500">reps</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-semibold text-gray-900">{workout.duration}</div>
+                      <div className="text-gray-500">time</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-semibold text-gray-900">{workout.formScore}%</div>
+                      <div className="text-gray-500">form</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-semibold text-gray-900">{workout.calories}</div>
+                      <div className="text-gray-500">cal</div>
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No recent workouts found.</p>
-              <Link to="/workout-session" className="mt-3 text-sm text-purple-600 hover:text-purple-500 inline-block">
-                Start your first workout
+            <div className="text-center py-12">
+              <Camera className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No workouts yet</h3>
+              <p className="text-gray-500 mb-4">Start your first AI-powered workout to see your progress</p>
+              <Link 
+                to="/workout-session" 
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-200"
+              >
+                <Play className="h-4 w-4 mr-2" />
+                Start First Workout
               </Link>
             </div>
           )}
-        </div>
+        </motion.div>
 
-        {/* Achievements Section */}
-        <div className="mt-8 bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Achievements</h2>
-            <Award className="h-5 w-5 text-purple-600" />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 border border-gray-100 rounded-lg">
-              <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 text-purple-600 mb-3">
-                <Award className="h-6 w-6" />
+        {/* AI Features Highlight */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-8 text-white mb-8"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="inline-flex p-4 bg-white/20 rounded-2xl mb-4">
+                <Camera className="h-8 w-8" />
               </div>
-              <h3 className="font-medium text-gray-900">First Workout</h3>
-              <p className="text-xs text-gray-500 mt-1">Completed your first AI workout</p>
+              <h3 className="text-xl font-bold mb-2">Real-time Detection</h3>
+              <p className="text-purple-100">AI tracks your movements with precision using advanced pose detection</p>
             </div>
-            <div className="text-center p-4 border border-gray-100 rounded-lg bg-gray-50">
-              <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-gray-200 text-gray-400 mb-3">
-                <Flame className="h-6 w-6" />
+            
+            <div className="text-center">
+              <div className="inline-flex p-4 bg-white/20 rounded-2xl mb-4">
+                <Brain className="h-8 w-8" />
               </div>
-              <h3 className="font-medium text-gray-400">3-Day Streak</h3>
-              <p className="text-xs text-gray-400 mt-1">Work out for 3 days in a row</p>
+              <h3 className="text-xl font-bold mb-2">Smart Feedback</h3>
+              <p className="text-purple-100">Get instant form corrections and personalized workout insights</p>
             </div>
-            <div className="text-center p-4 border border-gray-100 rounded-lg bg-gray-50">
-              <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-gray-200 text-gray-400 mb-3">
-                <TrendingUp className="h-6 w-6" />
+            
+            <div className="text-center">
+              <div className="inline-flex p-4 bg-white/20 rounded-2xl mb-4">
+                <Target className="h-8 w-8" />
               </div>
-              <h3 className="font-medium text-gray-400">100 Reps</h3>
-              <p className="text-xs text-gray-400 mt-1">Complete 100 total reps</p>
-            </div>
-            <div className="text-center p-4 border border-gray-100 rounded-lg bg-gray-50">
-              <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-gray-200 text-gray-400 mb-3">
-                <Dumbbell className="h-6 w-6" />
-              </div>
-              <h3 className="font-medium text-gray-400">Variety Pack</h3>
-              <p className="text-xs text-gray-400 mt-1">Try 5 different workout types</p>
+              <h3 className="text-xl font-bold mb-2">Auto Rep Counting</h3>
+              <p className="text-purple-100">Never lose count again with our intelligent repetition tracking</p>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

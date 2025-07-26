@@ -53,9 +53,9 @@ export async function initializePoseDetector(): Promise<any> {
     
     console.log('MoveNet model loaded successfully');
     return globalDetector;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading pose detector:', error);
-    console.error('Error details:', error.message);
+    console.error('Error details:', error?.message);
     
     // Try fallback initialization
     try {
@@ -65,9 +65,9 @@ export async function initializePoseDetector(): Promise<any> {
       );
       console.log('Fallback detector created successfully');
       return globalDetector;
-    } catch (fallbackError) {
+    } catch (fallbackError: any) {
       console.error('Fallback initialization also failed:', fallbackError);
-      throw new Error(`Failed to initialize pose detector: ${error.message}`);
+      throw new Error(`Failed to initialize pose detector: ${error?.message || error}`);
     }
   }
 }
