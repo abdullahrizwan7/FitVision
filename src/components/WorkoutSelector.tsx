@@ -136,10 +136,10 @@ const WorkoutSelector: React.FC<WorkoutSelectorProps> = ({
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             AI-Powered Workouts
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Choose your exercise and let our AI provide real-time form feedback and rep counting
           </p>
         </motion.div>
@@ -158,7 +158,7 @@ const WorkoutSelector: React.FC<WorkoutSelectorProps> = ({
               className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                 selectedCategory === category.id
                   ? 'bg-purple-600 text-white shadow-lg'
-                  : 'bg-white text-gray-600 hover:bg-purple-50 hover:text-purple-600 shadow-md'
+                  : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 shadow-md'
               }`}
             >
               {category.icon}
@@ -194,11 +194,11 @@ const WorkoutSelector: React.FC<WorkoutSelectorProps> = ({
               </div>
             </div>
             
-            <h3 className="text-xl font-bold text-gray-900 mb-2">{workout.name}</h3>
-            <p className="text-gray-600 mb-4">{workout.description}</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{workout.name}</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">{workout.description}</p>
             
             <div className="flex items-center justify-between">
-              <div className="flex items-center text-gray-500">
+              <div className="flex items-center text-gray-500 dark:text-gray-400">
                 {workout.type === 'reps' ? (
                   <Target className="h-4 w-4 mr-1" />
                 ) : (
@@ -226,13 +226,13 @@ const WorkoutSelector: React.FC<WorkoutSelectorProps> = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl border border-gray-100 dark:border-gray-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             >
               {/* Close Button */}
               <div className="relative">
                 <button
                   onClick={closeModal}
-                  className="absolute top-0 right-0 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute top-0 right-0 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -242,8 +242,8 @@ const WorkoutSelector: React.FC<WorkoutSelectorProps> = ({
                 <div className={`inline-flex p-4 rounded-2xl ${selectedWorkout.color} text-white mb-4`}>
                   {selectedWorkout.icon}
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedWorkout.name}</h2>
-                <p className="text-gray-600">{selectedWorkout.description}</p>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{selectedWorkout.name}</h2>
+                <p className="text-gray-600 dark:text-gray-300">{selectedWorkout.description}</p>
               </div>
 
               <div className="space-y-6">
@@ -275,33 +275,33 @@ const WorkoutSelector: React.FC<WorkoutSelectorProps> = ({
                     <div className="flex justify-center mb-2">
                       <Flame className="h-5 w-5 text-orange-500" />
                     </div>
-                    <div className="text-lg font-semibold text-gray-900">
+                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
                       {Math.round(selectedWorkout.calories * (selectedValue / selectedWorkout.defaultValue))}
                     </div>
-                    <div className="text-sm text-gray-500">Calories</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Calories</div>
                   </div>
                   
                   <div className="text-center">
                     <div className="flex justify-center mb-2">
                       <Timer className="h-5 w-5 text-blue-500" />
                     </div>
-                    <div className="text-lg font-semibold text-gray-900">
+                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
                       {selectedWorkout.type === 'reps' 
                         ? `${Math.round(selectedValue * 3)}s`
                         : `${selectedValue}s`
                       }
                     </div>
-                    <div className="text-sm text-gray-500">Est. Time</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Est. Time</div>
                   </div>
                   
                   <div className="text-center">
                     <div className="flex justify-center mb-2">
                       <TrendingUp className="h-5 w-5 text-green-500" />
                     </div>
-                    <div className="text-lg font-semibold text-gray-900">
+                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
                       {selectedWorkout.difficulty}
                     </div>
-                    <div className="text-sm text-gray-500">Level</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Level</div>
                   </div>
                 </div>
 
