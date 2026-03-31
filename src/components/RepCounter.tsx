@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Target, Clock, Flame, TrendingUp } from 'lucide-react';
+import { Clock, Flame, TrendingUp } from 'lucide-react';
 
 interface RepCounterProps {
   currentReps: number;
@@ -34,20 +34,20 @@ const RepCounter: React.FC<RepCounterProps> = ({
   };
   
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 lg:p-6 shadow-lg border border-gray-200">
+    <div className="rounded-[1.6rem] border border-slate-200 bg-white/92 p-4 shadow-lg backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/80 lg:rounded-2xl lg:p-6">
       {/* Main Counter */}
-      <div className="text-center mb-3 lg:mb-6">
+      <div className="mb-4 text-center lg:mb-6">
         <motion.div
           key={currentReps}
           initial={{ scale: 1 }}
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 0.3 }}
-          className="text-3xl lg:text-6xl font-bold text-gray-900 mb-1 lg:mb-2"
+          className="mb-1 text-[2.15rem] font-black leading-none text-slate-900 dark:text-white lg:mb-2 lg:text-6xl"
         >
           {workoutType === 'reps' ? currentReps : formatTime(elapsedTime)}
         </motion.div>
         
-        <div className="text-sm lg:text-lg text-gray-600">
+        <div className="text-sm font-medium text-slate-500 dark:text-slate-300 lg:text-lg">
           {workoutType === 'reps' 
             ? `/ ${targetReps} reps` 
             : `/ ${formatTime(targetReps)} target`
@@ -55,7 +55,7 @@ const RepCounter: React.FC<RepCounterProps> = ({
         </div>
         
         {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2 lg:h-3 mt-2 lg:mt-4 overflow-hidden">
+        <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 lg:mt-4 lg:h-3">
           <motion.div
             className={`h-full rounded-full ${
               isComplete 
@@ -70,18 +70,18 @@ const RepCounter: React.FC<RepCounterProps> = ({
           />
         </div>
         
-        <div className="text-xs lg:text-sm text-gray-500 mt-1 lg:mt-2">
+        <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 lg:text-sm">
           {Math.round(progress)}% Complete
         </div>
       </div>
       
       {/* Position Indicator */}
-      <div className="flex justify-center mb-3 lg:mb-6">
+      <div className="mb-4 flex justify-center lg:mb-6">
         <motion.div
           key={currentPosition}
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className={`px-3 lg:px-6 py-1.5 lg:py-3 rounded-full font-bold text-sm lg:text-lg ${
+          className={`rounded-full px-4 py-2 text-sm font-bold shadow-sm lg:px-6 lg:py-3 lg:text-lg ${
             currentPosition === 'DOWN' || currentPosition === 'HOLD' || currentPosition === 'OUT'
               ? 'bg-red-100 text-red-700 border-2 border-red-300'
               : currentPosition === 'UP' || currentPosition === 'IN'
@@ -94,35 +94,35 @@ const RepCounter: React.FC<RepCounterProps> = ({
       </div>
       
       {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-2 lg:gap-4">
-        <div className="text-center">
-          <div className="flex justify-center mb-1 lg:mb-2">
+      <div className="grid grid-cols-3 gap-3 lg:gap-4">
+        <div className="rounded-2xl bg-slate-50 px-2 py-3 text-center dark:bg-slate-800/70">
+          <div className="mb-1 flex justify-center lg:mb-2">
             <Clock className="h-4 w-4 lg:h-5 lg:w-5 text-blue-500" />
           </div>
-          <div className="text-sm lg:text-lg font-semibold text-gray-900">
+          <div className="text-base font-semibold text-slate-900 dark:text-white lg:text-lg">
             {formatTime(elapsedTime)}
           </div>
-          <div className="text-xs text-gray-500">Time</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400">Time</div>
         </div>
         
-        <div className="text-center">
-          <div className="flex justify-center mb-1 lg:mb-2">
+        <div className="rounded-2xl bg-slate-50 px-2 py-3 text-center dark:bg-slate-800/70">
+          <div className="mb-1 flex justify-center lg:mb-2">
             <Flame className="h-4 w-4 lg:h-5 lg:w-5 text-orange-500" />
           </div>
-          <div className="text-sm lg:text-lg font-semibold text-gray-900">
+          <div className="text-base font-semibold text-slate-900 dark:text-white lg:text-lg">
             {Math.round(caloriesEstimate)}
           </div>
-          <div className="text-xs text-gray-500">Calories</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400">Calories</div>
         </div>
         
-        <div className="text-center">
-          <div className="flex justify-center mb-1 lg:mb-2">
+        <div className="rounded-2xl bg-slate-50 px-2 py-3 text-center dark:bg-slate-800/70">
+          <div className="mb-1 flex justify-center lg:mb-2">
             <TrendingUp className="h-4 w-4 lg:h-5 lg:w-5 text-green-500" />
           </div>
-          <div className="text-sm lg:text-lg font-semibold text-gray-900">
+          <div className="text-base font-semibold text-slate-900 dark:text-white lg:text-lg">
             {Math.round(accuracy)}%
           </div>
-          <div className="text-xs text-gray-500">Form</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400">Form</div>
         </div>
       </div>
       

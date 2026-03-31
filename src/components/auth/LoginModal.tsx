@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -101,14 +102,14 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      {isOpen && (
+      {isOpen ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 z-[120] flex overflow-y-auto bg-black/50 p-4 pt-20 pb-6 sm:items-center sm:justify-center sm:pt-4"
           onClick={handleClose}
         >
           <motion.div
@@ -116,7 +117,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl border border-gray-100 dark:border-gray-700 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            className="my-auto w-full max-w-md self-start rounded-2xl border border-gray-100 bg-white p-6 shadow-xl max-h-[calc(100vh-6rem)] overflow-y-auto dark:border-gray-700 dark:bg-gray-800 sm:self-auto sm:p-8 sm:max-h-[90vh]"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -281,8 +282,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             </div>
           </motion.div>
         </motion.div>
-      )}
-    </AnimatePresence>
+      ) : null}
+    </AnimatePresence>,
+    document.body
   );
 };
 

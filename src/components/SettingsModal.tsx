@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
@@ -38,7 +39,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     repCounting: true,
     
     // Notification Settings
-    workoutReminders: userProfile?.preferences?.notifications || true,
+    workoutReminders: userProfile?.preferences?.notifications ?? true,
     achievementAlerts: true,
     weeklyReports: true,
     
@@ -49,7 +50,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     analyticsSharing: false,
     
     // Display Settings
-    theme: theme,
+    theme: theme as 'light' | 'dark' | 'auto',
     units: userProfile?.preferences?.units || 'metric',
     language: 'en',
     
@@ -66,7 +67,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         ...prev,
         theme: theme,
         units: userProfile?.preferences?.units || 'metric',
-        workoutReminders: userProfile?.preferences?.notifications || true
+        workoutReminders: userProfile?.preferences?.notifications ?? true
       }));
     }
   }, [isOpen, userProfile, theme]);
@@ -163,14 +164,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     </div>
   );
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      {isOpen && (
+      {isOpen ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 z-[120] flex overflow-y-auto bg-black/50 p-4 pt-20 pb-6 sm:items-center sm:justify-center sm:pt-4"
           onClick={onClose}
         >
           <motion.div
@@ -178,7 +179,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 max-w-4xl w-full max-h-[90vh] overflow-hidden"
+            className="my-auto w-full max-w-4xl self-start overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl max-h-[calc(100vh-6rem)] dark:border-gray-700 dark:bg-gray-800 sm:self-auto sm:max-h-[90vh]"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
@@ -200,7 +201,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* Content */}
-            <div className="overflow-y-auto max-h-[70vh]">
+            <div className="overflow-y-auto max-h-[calc(100vh-15rem)] sm:max-h-[70vh]">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
                 {/* Workout Settings */}
                 <div className="space-y-6">
@@ -388,7 +389,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+            <div className="flex flex-col gap-4 border-t border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800 sm:flex-row sm:items-center sm:justify-between">
               <button
                 onClick={resetToDefaults}
                 className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors"
@@ -397,7 +398,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                 <span>Reset to Defaults</span>
               </button>
               
-              <div className="flex space-x-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   onClick={onClose}
                   className="px-6 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
@@ -414,8 +415,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             </div>
           </motion.div>
         </motion.div>
-      )}
-    </AnimatePresence>
+      ) : null}
+    </AnimatePresence>,
+    document.body
   );
 };
 

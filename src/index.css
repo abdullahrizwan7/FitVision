@@ -2,16 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global dark mode styles */
 @layer base {
+  :root {
+    color-scheme: light;
+    --app-bg: #f4f7fb;
+    --app-text: #0f172a;
+    --panel-bg: rgba(255, 255, 255, 0.8);
+    --panel-border: rgba(148, 163, 184, 0.2);
+  }
+
   .dark {
     color-scheme: dark;
+    --app-bg: #020617;
+    --app-text: #e2e8f0;
+    --panel-bg: rgba(15, 23, 42, 0.72);
+    --panel-border: rgba(148, 163, 184, 0.18);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), transparent 28%),
+      radial-gradient(circle at top right, rgba(99, 102, 241, 0.12), transparent 24%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(244, 247, 251, 1));
+    background-color: var(--app-bg);
+    color: var(--app-text);
+    min-height: 100vh;
+  }
+
+  .dark body {
+    background:
+      radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), transparent 28%),
+      radial-gradient(circle at top right, rgba(59, 130, 246, 0.14), transparent 24%),
+      linear-gradient(180deg, rgba(2, 6, 23, 0.94), rgba(3, 7, 18, 1));
   }
 }
 
 canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+@layer components {
+  .glass-panel {
+    @apply border shadow-[0_20px_60px_-35px_rgba(15,23,42,0.45)] backdrop-blur-xl;
+    background-color: var(--panel-bg);
+    border-color: var(--panel-border);
+  }
+
+  .section-shell {
+    @apply rounded-[2rem] border px-6 py-8 sm:px-8 sm:py-10;
+    background-color: var(--panel-bg);
+    border-color: var(--panel-border);
+  }
 }

@@ -220,6 +220,24 @@ npm run build
 # Upload dist/ folder to Netlify
 ```
 
+### Firebase Hosting
+```bash
+npm install -g firebase-tools
+firebase login
+npm run build:firebase
+firebase deploy
+```
+
+This project is already configured for Firebase Hosting via [firebase.json](/Users/ayazmallick/Desktop/Projects/FitVision/firebase.json) and [.firebaserc](/Users/ayazmallick/Desktop/Projects/FitVision/.firebaserc).
+
+Use:
+
+```bash
+npm run deploy:firebase
+```
+
+for a one-command Firebase deploy after login.
+
 ### Docker
 ```dockerfile
 FROM node:18-alpine

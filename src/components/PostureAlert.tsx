@@ -71,8 +71,8 @@ const PostureAlert: React.FC<PostureAlertProps> = ({
             transition: { duration: 0.2 }
           }}
           className={`
-            fixed top-24 left-4 z-50 p-4 rounded-lg border-2 shadow-lg 
-            backdrop-blur-sm max-w-sm
+            absolute left-3 right-3 top-3 z-30 max-w-none rounded-2xl border-2 p-3 shadow-lg
+            backdrop-blur-sm sm:fixed sm:left-4 sm:right-auto sm:top-24 sm:max-w-sm sm:p-4
             ${config.bgColor}
           `}
         >

@@ -10,7 +10,8 @@ import {
   where,
   orderBy,
   limit,
-  Timestamp
+  Timestamp,
+  setDoc
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { WorkoutSession } from '../types/pose';
@@ -61,9 +62,58 @@ export class WorkoutService {
   private static COLLECTION_NAME = 'workouts';
   private static USER_STATS_COLLECTION = 'userStats';
 
+  // Test Firebase connection
+  static async testConnection(): Promise<boolean> {
+    try {
+      console.log('WorkoutService: Testing Firebase connection...');
+      
+      // Try to access the collection (this should work even with no data)
+      const testQuery = query(
+        collection(db, this.COLLECTION_NAME),
+        limit(1)
+      );
+      
+      const snapshot = await getDocs(testQuery);
+      console.log('WorkoutService: Firebase connection successful, found', snapshot.size, 'documents');
+      return true;
+    } catch (error) {
+      console.error('WorkoutService: Firebase connection failed:', error);
+      return false;
+    }
+  }
+
+  // Validate workout session data
+  static validateWorkoutSession(session: WorkoutSession): boolean {
+    console.log('WorkoutService: Validating session:', session);
+    
+    if (!session.workoutType?.name || !session.workoutType?.id) {
+      console.error('WorkoutService: Invalid workout type', session.workoutType);
+      return false;
+    }
+    if (session.repsCompleted < 0 || !Number.isFinite(session.repsCompleted)) {
+      console.error('WorkoutService: Invalid reps completed', session.repsCompleted);
+      return false;
+    }
+    if (!session.startTime || session.startTime > new Date()) {
+      console.error('WorkoutService: Invalid start time', session.startTime);
+      return false;
+    }
+    
+    console.log('WorkoutService: Session validation passed');
+    return true;
+  }
+
   // Save a workout session
   static async saveWorkoutSession(userId: string, session: WorkoutSession): Promise<string> {
     try {
+      console.log('WorkoutService: Saving workout session for userId:', userId);
+      console.log('WorkoutService: Session data received:', session);
+      
+      // Validate session data before saving
+      if (!this.validateWorkoutSession(session)) {
+        throw new Error('Invalid workout session data');
+      }
+
       const workoutData: Omit<FirebaseWorkoutSession, 'id'> = {
         userId,
         workoutType: {
@@ -91,10 +141,13 @@ export class WorkoutService {
         createdAt: Timestamp.now()
       };
 
+      console.log('WorkoutService: Final workout data to save:', workoutData);
       const docRef = await addDoc(collection(db, this.COLLECTION_NAME), workoutData);
+      console.log('WorkoutService: Saved to Firestore with ID:', docRef.id);
       
       // Update user stats
       await this.updateUserStats(userId, workoutData);
+      console.log('WorkoutService: User stats updated successfully');
       
       return docRef.id;
     } catch (error) {
@@ -109,20 +162,52 @@ export class WorkoutService {
     limitCount: number = 50
   ): Promise<FirebaseWorkoutSession[]> {
     try {
-      const q = query(
-        collection(db, this.COLLECTION_NAME),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      );
+      console.log('WorkoutService: Fetching workouts for userId:', userId);
+      console.log('WorkoutService: Using collection:', this.COLLECTION_NAME);
+      console.log('WorkoutService: Firebase db instance:', !!db);
+      
+      let q;
+      let querySnapshot;
+      
+      try {
+        // Try with orderBy first (requires index)
+        q = query(
+          collection(db, this.COLLECTION_NAME),
+          where('userId', '==', userId),
+          orderBy('createdAt', 'desc'),
+          limit(limitCount)
+        );
 
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
+        console.log('WorkoutService: Query with orderBy created, executing...');
+        querySnapshot = await getDocs(q);
+        console.log('WorkoutService: Query with orderBy executed successfully');
+      } catch (indexError) {
+        console.warn('WorkoutService: OrderBy query failed, trying without orderBy:', indexError);
+        
+        // Fallback: try without orderBy (doesn't require index)
+        q = query(
+          collection(db, this.COLLECTION_NAME),
+          where('userId', '==', userId),
+          limit(limitCount)
+        );
+
+        console.log('WorkoutService: Fallback query created, executing...');
+        querySnapshot = await getDocs(q);
+        console.log('WorkoutService: Fallback query executed successfully');
+      }
+      
+      const workouts = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as FirebaseWorkoutSession));
+      
+      console.log('WorkoutService: Found', workouts.length, 'workouts for user');
+      return workouts;
     } catch (error) {
-      console.error('Error getting user workouts:', error);
+      console.error('WorkoutService: Error getting user workouts:', error);
+      console.error('WorkoutService: Error type:', typeof error);
+      console.error('WorkoutService: Error code:', error?.code);
+      console.error('WorkoutService: Error message:', error?.message);
       throw error;
     }
   }
@@ -308,7 +393,24 @@ export class WorkoutService {
         updatedAt: Timestamp.now()
       };
 
-      await updateDoc(userStatsRef, updatedStats);
+      await setDoc(userStatsRef, updatedStats, { merge: true });
+
+      const fullStats = await this.getUserStats(userId);
+      await setDoc(
+        doc(db, 'users', userId),
+        {
+          stats: {
+            totalWorkouts: fullStats.totalWorkouts,
+            totalReps: fullStats.totalReps,
+            totalCalories: fullStats.totalCalories,
+            totalMinutes: fullStats.totalMinutes,
+            currentStreak: fullStats.currentStreak,
+            bestStreak: fullStats.bestStreak
+          },
+          updatedAt: Timestamp.now()
+        },
+        { merge: true }
+      );
     } catch (error) {
       console.error('Error updating user stats:', error);
       // Don't throw here as it's not critical for the main workflow

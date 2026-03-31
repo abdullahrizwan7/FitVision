@@ -175,10 +175,12 @@ const getPose = async () => {
                 onRepUpdate(pushUps);
               }
               
-              // Play sound (optional)
+              // Play sound (optional) - Use centralized audio feedback
               try {
-                const snd = new Audio("/a-tone.wav");
-                snd.play().catch(e => console.log("Sound not available"));
+                // Import and use the audio feedback
+                import('./audioFeedback.js').then(({ audioFeedback }) => {
+                  audioFeedback.repCompleted();
+                }).catch(() => console.log("Sound not available"));
               } catch (e) {
                 console.log("Sound not available");
               }

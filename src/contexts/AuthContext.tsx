@@ -12,26 +12,31 @@ import {
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 
-interface UserProfile {
+interface UserProfilePreferences {
+  units: 'metric' | 'imperial';
+  notifications: boolean;
+  theme: 'light' | 'dark' | 'auto';
+  fitnessGoal?: 'weight_loss' | 'muscle_gain' | 'endurance' | 'strength' | 'general';
+}
+
+interface UserProfileStats {
+  totalWorkouts: number;
+  totalReps: number;
+  totalCalories: number;
+  totalMinutes: number;
+  currentStreak: number;
+  bestStreak: number;
+}
+
+export interface UserProfile {
   uid: string;
   email: string;
   displayName: string;
   photoURL?: string;
   createdAt: Date;
   lastLoginAt: Date;
-  preferences: {
-    units: 'metric' | 'imperial';
-    notifications: boolean;
-    theme: 'light' | 'dark';
-  };
-  stats: {
-    totalWorkouts: number;
-    totalReps: number;
-    totalCalories: number;
-    totalMinutes: number;
-    currentStreak: number;
-    bestStreak: number;
-  };
+  preferences: UserProfilePreferences;
+  stats: UserProfileStats;
 }
 
 interface AuthContextType {
@@ -137,7 +142,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         preferences: {
           units: 'metric',
           notifications: true,
-          theme: 'light'
+          theme: 'light',
+          fitnessGoal: 'general'
         },
         stats: {
           totalWorkouts: 0,
@@ -177,7 +183,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user || !userProfile) return;
 
     const userRef = doc(db, 'users', user.uid);
-    const updatedProfile = { ...userProfile, ...updates };
+    const updatedProfile = {
+      ...userProfile,
+      ...updates,
+      preferences: {
+        ...userProfile.preferences,
+        ...updates.preferences
+      },
+      stats: {
+        ...userProfile.stats,
+        ...updates.stats
+      }
+    };
+
+    if (updates.displayName || updates.photoURL !== undefined) {
+      await updateProfile(user, {
+        displayName: updates.displayName ?? user.displayName ?? updatedProfile.displayName,
+        photoURL: updates.photoURL ?? user.photoURL ?? null
+      });
+    }
     
     await setDoc(userRef, updatedProfile, { merge: true });
     setUserProfile(updatedProfile);
@@ -189,7 +213,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const userSnap = await getDoc(userRef);
     
     if (userSnap.exists()) {
-      setUserProfile(userSnap.data() as UserProfile);
+      const firestoreProfile = userSnap.data() as UserProfile;
+      const syncedProfile = {
+        ...firestoreProfile,
+        email: user.email || firestoreProfile.email || '',
+        displayName: user.displayName || firestoreProfile.displayName || 'User',
+        photoURL: user.photoURL || firestoreProfile.photoURL,
+        lastLoginAt: new Date()
+      };
+
+      await setDoc(userRef, syncedProfile, { merge: true });
+      setUserProfile(syncedProfile);
+    } else {
+      await createOrUpdateUserProfile(user);
     }
   };
 

@@ -15,11 +15,24 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
+console.log('Firebase: Initializing with config:', {
+  ...firebaseConfig,
+  apiKey: firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 10)}...` : 'missing'
+});
+
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const analytics = getAnalytics(app);
 
+let analytics;
+try {
+  analytics = getAnalytics(app);
+} catch (error) {
+  console.warn('Firebase Analytics not available:', error);
+}
+export { analytics };
+
+console.log('Firebase: Services initialized successfully');
 export default app;

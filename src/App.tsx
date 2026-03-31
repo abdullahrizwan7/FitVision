@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Navbar from './components/Navbar';
+import AICoachDrawer from './components/AICoachDrawer';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
@@ -13,10 +14,12 @@ import WorkoutLibrary from './pages/WorkoutLibrary';
 import WorkoutSession from './pages/WorkoutSession';
 
 function App() {
+  const routerBasename = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router basename="/FitVision">
+        <Router basename={routerBasename}>
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
           <Navbar />
           <Routes>
@@ -48,6 +51,7 @@ function App() {
               </ProtectedRoute>
             } />
           </Routes>
+          <AICoachDrawer />
         </div>
         </Router>
       </AuthProvider>

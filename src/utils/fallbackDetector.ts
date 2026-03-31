@@ -17,15 +17,36 @@ export class FallbackDetector implements DetectorInstance {
 
   async initialize(): Promise<void> {
     // No AI initialization needed for fallback
-    console.log('Fallback detector initialized - manual counting mode');
-    this.callbacks.onFormFeedback(
-      'AI detection unavailable. Use manual controls to count reps.'
-    );
+    this.callbacks.onFormFeedback('AI tracking unavailable. Use manual counting mode.', 'warning');
+    this.callbacks.onStatusChange?.({
+      stage: 'idle',
+      message: 'Manual counting mode',
+      issues: ['AI tracking unavailable'],
+      isBodyVisible: true,
+      isReady: true,
+      readinessProgress: 1,
+      countdown: null,
+      formScore: 0,
+      repPhase: 'READY',
+      fps: 0
+    });
   }
 
   start(): void {
     this.isRunning = true;
     this.callbacks.onPositionChange('READY');
+    this.callbacks.onStatusChange?.({
+      stage: 'active',
+      message: 'Manual counting mode active',
+      issues: [],
+      isBodyVisible: true,
+      isReady: true,
+      readinessProgress: 1,
+      countdown: null,
+      formScore: 0,
+      repPhase: 'READY',
+      fps: 0
+    });
     
     // For plank exercises, start a timer
     if (this.intervalId) {
@@ -43,6 +64,18 @@ export class FallbackDetector implements DetectorInstance {
 
   stop(): void {
     this.isRunning = false;
+    this.callbacks.onStatusChange?.({
+      stage: 'paused',
+      message: 'Manual counting paused',
+      issues: [],
+      isBodyVisible: true,
+      isReady: true,
+      readinessProgress: 1,
+      countdown: null,
+      formScore: 0,
+      repPhase: this.currentPosition,
+      fps: 0
+    });
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;
@@ -54,6 +87,18 @@ export class FallbackDetector implements DetectorInstance {
     this.currentPosition = 'UP';
     this.callbacks.onRepComplete(0);
     this.callbacks.onPositionChange('UP');
+    this.callbacks.onStatusChange?.({
+      stage: 'idle',
+      message: 'Manual counting reset',
+      issues: [],
+      isBodyVisible: true,
+      isReady: true,
+      readinessProgress: 1,
+      countdown: null,
+      formScore: 0,
+      repPhase: 'UP',
+      fps: 0
+    });
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;

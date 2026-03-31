@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:firebase": "vite build --mode firebase",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "npm run build && npx gh-pages -d dist"
+    "deploy": "npm run build && npx gh-pages -d dist",
+    "deploy:firebase": "npm run build:firebase && firebase deploy"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

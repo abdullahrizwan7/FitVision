@@ -69,6 +69,7 @@ export interface PoseDetectorCallbacks {
   onPositionChange: (position: string) => void;
   onFormFeedback: (feedback: string, type?: 'correct' | 'warning' | 'error') => void;
   onAngleUpdate?: (angles: JointAngle[]) => void;
+  onStatusChange?: (status: WorkoutRuntimeStatus) => void;
 }
 
 export interface DetectorInstance {
@@ -78,6 +79,32 @@ export interface DetectorInstance {
   cleanup: () => void;
   getCurrentCount: () => number;
   getCurrentPosition: () => string;
+}
+
+export type WorkoutStage =
+  | 'idle'
+  | 'framing'
+  | 'countdown'
+  | 'active'
+  | 'paused'
+  | 'complete'
+  | 'error';
+
+export type DetectedCameraView = 'side' | 'front' | 'back' | 'unknown';
+
+export interface WorkoutRuntimeStatus {
+  stage: WorkoutStage;
+  message: string;
+  hint?: string;
+  issues: string[];
+  isBodyVisible: boolean;
+  isReady: boolean;
+  readinessProgress: number;
+  countdown: number | null;
+  formScore: number;
+  repPhase: string;
+  fps: number;
+  detectedView?: DetectedCameraView;
 }
 
 // Theme types for dark/light mode

@@ -11,26 +11,79 @@ export const useWorkoutData = () => {
 
   const loadUserWorkouts = async () => {
     if (!user) {
+      console.log('useWorkoutData: No user found, clearing data');
       setWorkouts([]);
       setStats(null);
       setLoading(false);
       return;
     }
 
+    if (!user.uid) {
+      console.error('useWorkoutData: User exists but has no UID');
+      setError('Authentication error: User has no ID');
+      setLoading(false);
+      return;
+    }
+
     try {
+      console.log('useWorkoutData: Loading workouts for user ID:', user.uid);
       setLoading(true);
       setError(null);
 
-      const [userWorkouts, userStats] = await Promise.all([
-        WorkoutService.getUserWorkouts(user.uid, 50),
-        WorkoutService.getUserStats(user.uid)
-      ]);
+      // Try to load workouts first
+      console.log('useWorkoutData: Attempting to load workouts...');
+      const userWorkouts = await WorkoutService.getUserWorkouts(user.uid, 50);
+      console.log('useWorkoutData: Workouts loaded successfully');
+      
+      // Then try to load stats (but don't fail if this doesn't work)
+      let userStats = null;
+      try {
+        console.log('useWorkoutData: Attempting to load stats...');
+        userStats = await WorkoutService.getUserStats(user.uid);
+        console.log('useWorkoutData: Stats loaded successfully');
+      } catch (statsError) {
+        console.warn('useWorkoutData: Failed to load stats, but continuing with workouts:', statsError);
+        userStats = {
+          totalWorkouts: 0,
+          totalReps: 0,
+          totalCalories: 0,
+          totalMinutes: 0,
+          avgFormScore: 0,
+          avgAiAccuracy: 0,
+          currentStreak: 0,
+          bestStreak: 0,
+          workoutsByCategory: {},
+          workoutsByDifficulty: {},
+          recentWorkouts: []
+        };
+      }
 
+      console.log('useWorkoutData: Loaded workouts:', userWorkouts.length, 'workouts');
+      console.log('useWorkoutData: User stats:', userStats);
       setWorkouts(userWorkouts);
       setStats(userStats);
     } catch (err) {
       console.error('Error loading workout data:', err);
-      setError('Failed to load workout data');
+      console.error('Error details:', {
+        message: err.message,
+        code: err.code,
+        stack: err.stack
+      });
+      setWorkouts([]);
+      setStats({
+        totalWorkouts: 0,
+        totalReps: 0,
+        totalCalories: 0,
+        totalMinutes: 0,
+        avgFormScore: 0,
+        avgAiAccuracy: 0,
+        currentStreak: 0,
+        bestStreak: 0,
+        workoutsByCategory: {},
+        workoutsByDifficulty: {},
+        recentWorkouts: []
+      });
+      setError(`Failed to load workout data: ${err?.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -40,7 +93,10 @@ export const useWorkoutData = () => {
     if (!user) throw new Error('User not authenticated');
 
     try {
+      console.log('useWorkoutData: Saving workout for user ID:', user.uid);
+      console.log('useWorkoutData: Session data:', session);
       await WorkoutService.saveWorkoutSession(user.uid, session);
+      console.log('useWorkoutData: Workout saved successfully, reloading data...');
       // Reload data after saving
       await loadUserWorkouts();
     } catch (err) {
